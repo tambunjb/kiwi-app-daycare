@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "44104744742",
+    "project_id": "kindercastleid",
+    "storage_bucket": "kindercastleid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44104744742:android:34791711d73aef41200be7",
+        "android_client_info": {
+          "package_name": "kiwi.app.daycare.kiwi_app_daycare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44104744742-pc42volb6gje662njfn3vmirkrgq3umk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4EfZlyCgZCnMEmL6IoWHRxcTPS5Zkv8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44104744742-pc42volb6gje662njfn3vmirkrgq3umk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

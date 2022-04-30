@@ -1,0 +1,426 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:kiwi_app_daycare/progressPainter.dart';
+
+import 'api.dart';
+import 'attendance.dart';
+import 'moodAndHealth.dart';
+import 'meals.dart';
+import 'milk.dart';
+import 'nap.dart';
+import 'navigationService.dart';
+import 'potty.dart';
+import 'activities.dart';
+import 'bath.dart';
+import 'medication.dart';
+import 'thingsToBringTmr.dart';
+import 'specialNotes.dart';
+import 'reportPdf.dart';
+
+
+class ReportForm extends StatefulWidget{
+  final dynamic data;
+  dynamic milks;
+  final Function progressReport;
+  final bool isToday;
+
+  ReportForm({Key? key, required this.data, required this.progressReport, required this.milks, required this.isToday}) : super(key: key) {
+    if(milks != null && milks.runtimeType == String) {
+      milks = milks.replaceAll('null', '||||');
+      milks = milks.replaceAll('{', '{"');
+      milks = milks.replaceAll(': ', '": "');
+      milks = milks.replaceAll(', ', '", "');
+      milks = milks.replaceAll('}', '"}');
+      milks = milks.replaceAll('}",', '},');
+      milks = milks.replaceAll(', "{', ', {');
+      milks = milks.replaceAll('"||||"', 'null');
+      milks = jsonDecode(milks);
+
+      milks.sort((a, b) => a['time'].toString().compareTo(b['time'].toString()));
+
+      for(int i=0;i<milks.length;i++) {
+        milks[i].removeWhere((key, value) => value == null);
+        // time remove second
+        if(milks[i]['time']!=null) {
+          milks[i]['time'] = milks[i]['time'].toString().split(':')[0]+':'+milks[i]['time'].toString().split(':')[1];
+        }
+      }
+    }
+  }
+
+  @override
+  _ReportFormState createState() => _ReportFormState();
+}
+
+class _ReportFormState extends State<ReportForm> {
+  late Map<String, dynamic> _data;
+  Map<String, bool?> _isValid = {};
+  final _validGroupFields = {
+    'isvalid_arrival_time': ['arrival_time'],
+    'isvalid_temperature': ['temperature'],
+    'isvalid_weight': ['weight'],
+    'isvalid_naptime1': ['naptime1_start', 'naptime1_end', 'naptime1_notes'],
+    'isvalid_naptime2': ['naptime2_start', 'naptime2_end', 'naptime2_notes'],
+    'isvalid_naptime3': ['naptime3_start', 'naptime3_end', 'naptime3_notes'],
+    'isvalid_num_of_potty': ['num_of_potty', 'potty_notes']
+  };
+  List<Map<String, dynamic>> _milks = [];
+  List<bool?> _isValidMilk = [];
+  int _initLengthMilks = 0;
+  bool _isUpdated = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _data = json.decode(json.encode(widget.data));
+
+    // is valid potty
+    if(_data['report']['num_of_potty']!=null && _data['report']['num_of_potty']!='') {
+      _isValid['isvalid_num_of_potty'] = true;
+    }
+
+    // is valid nap time
+    if(_data['report']['naptime1_start']!=null && _data['report']['naptime1_start']!='' &&
+        _data['report']['naptime1_end']!=null && _data['report']['naptime1_end']!='') {
+      _isValid['isvalid_naptime1'] = true;
+    }
+    if(_data['report']['naptime2_start']!=null && _data['report']['naptime2_start']!='' &&
+        _data['report']['naptime2_end']!=null && _data['report']['naptime2_end']!='') {
+      _isValid['isvalid_naptime2'] = true;
+    }
+    if(_data['report']['naptime3_start']!=null && _data['report']['naptime3_start']!='' &&
+        _data['report']['naptime3_end']!=null && _data['report']['naptime3_end']!='') {
+      _isValid['isvalid_naptime3'] = true;
+    }
+
+    // prefill static attribute
+    if(_data['report']['nanny_id']==null) {
+      _data['report']['nanny_id'] = _data['nanny_id'].toString();
+    }
+    if(_data['report']['child_id']==null) {
+      _data['report']['child_id'] = _data['child_id'].toString();
+    }
+    if(_data['report']['location_id']==null) {
+      _data['report']['location_id'] = _data['location_id'].toString();
+    }
+    if(_data['report']['date']==null) {
+      _data['report']['date'] = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
+    }
+
+    if(widget.milks!=null && widget.milks.isNotEmpty) {
+      _initLengthMilks = widget.milks.length;
+      for(int i=0;i<_initLengthMilks;i++) {
+        _milks.add(json.decode(json.encode(widget.milks[i]))); // widget.milks;
+        _isValidMilk.add(true);
+      }
+    }else{
+      _milks.add({});
+      _isValidMilk.add(null);
+    }
+  }
+
+  void _addMilkSession() {
+    if(widget.isToday) {
+      setState(() {
+        _milks.add({});
+        _isValidMilk.add(null);
+      });
+    }
+  }
+
+  dynamic _getMilkData(int index, String label) {
+    return _milks[index][label];
+  }
+
+  void _setMilkData(int index, String label, dynamic newData) {
+    if(widget.isToday) {
+      setState(() {
+        _milks[index][label] = newData;
+      });
+    }
+  }
+
+  bool? _getIsValidMilk(int index) {
+    return _isValidMilk[index];
+  }
+
+  void _setIsValidMilk(int index, bool valid) {
+    if(widget.isToday) {
+      setState(() {
+        _isValidMilk[index] = valid;
+      });
+    }
+  }
+
+  dynamic _getData(String label) {
+    List<String> arr = label.split(',');
+    dynamic d = _data;
+    for(String a in arr){
+      if(d[a]==null) return null;
+      d = d[a];
+    }
+    return d;
+  }
+
+  // report label
+  void _setData(String label, dynamic newData) {
+    if(widget.isToday) {
+      setState(() {
+        if (_data['report'] == null) {
+          _data['report'] = [];
+        }
+        _data['report'][label] = newData;
+
+        _data['progress'] = widget.progressReport(_data['report']);
+        _data['status'] = _data['report']['attendance'] == '0' ? 'Absent' : (
+            _data['progress']<1.0?'In-progress': (
+              _data['report']['shared_at'] != null ? (
+                  'Shared at '+(DateFormat(_data['report']['shared_at'].toString().split(' ')[0]==_data['report']['date'].toString()?'HH:mm':'d MMM yyyy HH:mm').format(DateTime.parse(_data['report']['shared_at'].toString().split('.')[0])))
+              ):'Ready to share'
+            )
+        );
+      });
+    }
+  }
+
+  bool? _getIsValid(String label) {
+    return _isValid[label];
+  }
+
+  void _setIsValid(String label, bool valid) {
+    if(widget.isToday) {
+      setState(() {
+        _isValid[label] = valid;
+      });
+    }
+  }
+
+  void _validateForm() {
+    for(String s in _validGroupFields.keys) {
+      if(_isValid[s]!=null && _isValid[s]==false) {
+        for(String f in (_validGroupFields[s] as List)) {
+          setState(() {
+            _data['report'].remove(f);
+          });
+        }
+      }
+    }
+  }
+
+  void _formSubmit({bool isBack = true, bool sharePastDate = false}) async {
+    if(widget.isToday) {
+      _validateForm();
+      Map<String, dynamic> report = _data['report'];
+
+      if (_data['id'] != null) {
+        // report edit
+
+        if (widget.data['report'] == null || !mapEquals(report, widget.data['report'])) {
+          // if changes exist
+          _isUpdated = true;
+          if (report['attendance'].toString() == '0') {
+            if(widget.data['report']['attendance'].toString() == '1') {
+              await Api.setReportAbsent(_data['id'].toString());
+            }else{
+              _isUpdated = false;
+            }
+          } else {
+            // set utc +7
+            if (report['shared_at'] != null && report['shared_at'] != '') {
+              report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
+              report['shared_at'] = report['shared_at'] + ' +7';
+            }
+            await Api.editReport(_data['id'].toString(), report);
+            // unset utc +7
+            if (report['shared_at'] != null && report['shared_at'] != '') {
+              report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
+            }
+          }
+        }
+      } else if (report['attendance'] != null) {
+        // report add
+
+        if (report['attendance'].toString() == '0') {
+          // set absent
+          report = <String, String>{};
+          report['attendance'] = '0';
+        }
+
+        _isUpdated = true;
+        _data['id'] = await Api.addReport(report);
+      }
+      if (report['attendance'].toString() == '1' &&
+          (_data['id'] != null && _data['id'] != false)) {
+        await _formMilkSubmit();
+      }
+    } else if(sharePastDate) {
+      final pd_shared_at = DateTime.now().toString().split('.')[0];
+      setState(() {
+        _data['report']['shared_at'] = pd_shared_at;
+        _data['status'] = 'Shared at ' + (DateFormat(
+            'd MMM yyyy HH:mm').format(DateTime.parse(
+            _data['report']['shared_at'].toString().replaceAll(' +7', '').toString().split('.')[0])));
+      });
+      await Api.editReport(_data['id'].toString(), {'shared_at': pd_shared_at + ' +7'});
+      _isUpdated = true;
+    }
+
+    if(isBack) {
+      if (_isUpdated) {
+        NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
+      } else {
+        NavigationService.instance.goBack();
+      }
+    }
+  }
+
+  Future<void> _formMilkSubmit() async {
+    List milksTime = [];
+    for(int i=0;i<_milks.length;i++) {
+      if(_isValidMilk[i]==true) {
+        if(_milks[i]['id']!=null) {
+          milksTime.add(_milks[i]['time']);
+          if(widget.milks[i]==null || !mapEquals(_milks[i], widget.milks[i])) {
+            _isUpdated = true;
+            await Api.editMilkSession(_milks[i].remove('id').toString(), _milks[i]);
+          }
+        } else {
+          _milks[i]['report_id'] = _data['id'].toString();
+          _isUpdated = true;
+
+          if(milksTime.where((item) => item == _milks[i]['time']).isEmpty) {
+            _milks[i]['id'] = await Api.addMilkSession(Map<String, dynamic>.from(_milks[i]));
+            milksTime.add(_milks[i]['time']);
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return WillPopScope(
+        onWillPop: () async { _formSubmit(); return false; },
+        child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0.0,
+          leading: GestureDetector(
+              onTap: () {
+                _formSubmit();
+              },
+              child: const Icon(Icons.arrow_back)
+          ),
+          title: Row(
+              children: [
+                Visibility(
+                  visible: _data['report']['date'].toString()==DateTime.now().toString().split(' ')[0],
+                  child: const Text("Today, ", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16)),
+                ),
+                Text(DateFormat(_data['report']['date'].toString()==DateTime.now().toString().split(' ')[0]?'d MMM yyyy':'EEEE, d MMM yyyy').format(DateTime.parse(_data['report']['date'].toString().split('.')[0])), style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 16))
+              ]
+          ),
+          actions: [
+            GestureDetector(
+                onTap: () {
+                    if(_data['report']['attendance']=='1' && _data['progress']==1.0) {
+                      Fluttertoast.showToast(msg: 'Processing to share, please wait...');
+                      reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                    } else if(_data['report']['attendance']=='1') {
+                      Fluttertoast.showToast(msg: 'Complete the form first to share');
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: const Icon(Icons.share),
+                  )
+                )
+          ],
+        ),
+        backgroundColor: Colors.white,
+        body: ListView(
+            padding: const EdgeInsets.only(left: 5, right: 5),
+            children: [
+              Visibility(
+                visible: !widget.isToday,
+                child: Container(
+                    margin: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(15),
+                    decoration: const BoxDecoration(
+                        color: Color(0xFFFFECDA),
+                        borderRadius: BorderRadius.all(Radius.circular(5.0))
+                    ),
+                    child: Row(
+                        children: [
+                          Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              child: const Icon(Icons.warning_rounded)
+                          ),
+                          const Flexible(
+                            child: Text("You view a report on a past date and may edit the form, but the changes wont be submitted.", style: TextStyle(fontSize: 16), overflow: TextOverflow.visible),
+                          )
+                        ]
+                    )
+                ),
+              ),
+              Card(
+                color: Colors.transparent,
+                elevation: 0,
+                child: ListTile(
+                  textColor: Colors.black,
+                  contentPadding: const EdgeInsets.all(10),
+                  onTap: () {},
+                  title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(padding: const EdgeInsets.only(bottom:3), child: Text(_data['nanny_name'], style: const TextStyle(fontSize: 15))),
+                        Padding(padding: const EdgeInsets.only(bottom:8), child: Text(_data['child_name'], style: const TextStyle(fontSize: 20)))
+                      ]
+                  ),
+                  subtitle: Row(
+                      children: [
+                        Text(_data['status'], style: const TextStyle(fontSize: 16)),
+                        _data['status'].toString().split(' ')[0]=='Shared'?
+                        Row(
+                            children: const [
+                              SizedBox(width: 5),
+                              Icon(Icons.check_circle, color: Colors.green),
+                            ]
+                        )
+                            :Container(),
+                      ]
+                  ),
+                  leading: CustomPaint(
+                    foregroundPainter: ProgressPainter(_data['progress']),
+                    child: CircleAvatar(
+                      child: Text(_data['child_name'].toString().toUpperCase()[0]+(_data['child_name'].toString().split(' ').length>1?_data['child_name'].toString().split(' ')[1].toUpperCase()[0]:''), style: const TextStyle(fontSize: 27)),
+                      backgroundColor: _data['report']!=null && _data['report']['attendance']=='0'?const Color(0xFFFFCB9A):const Color(0xFFDDF284),
+                      foregroundColor: Colors.black,
+                      radius: 30,
+                    ),
+                  ),
+                ),
+              ),
+              Attendance(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
+              MoodAndHealth(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
+              Meals(getData: _getData, setData: _setData),
+              Milk(initLength: _initLengthMilks, getMilkData: _getMilkData, setMilkData: _setMilkData, getIsValidMilk: _getIsValidMilk, setIsValidMilk: _setIsValidMilk, addMilkSession: _addMilkSession),
+              Nap(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
+              Potty(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
+              Activities(getData: _getData, setData: _setData),
+              Bath(getData: _getData, setData: _setData),
+              Medication(getData: _getData, setData: _setData),
+              ThingsToBringTmr(getData: _getData, setData: _setData),
+              SpecialNotes(getData: _getData, setData: _setData)
+            ]
+        )
+    ));
+  }
+}

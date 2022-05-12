@@ -380,7 +380,7 @@ class _ReportState extends State<Report>{
                             //if(_isToday) {
                               NavigationService.instance.navigateToRoute(MaterialPageRoute(
                                   builder: (BuildContext context){
-                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report'].remove('milk_sessions'), isToday: _isToday);
+                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report']['milk_sessions'], isToday: _isToday);
                                   }
                               ));
                             //}

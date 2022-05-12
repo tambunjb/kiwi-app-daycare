@@ -48,7 +48,7 @@ class _LoginState extends State<Login>{
                             children: [
                               SizedBox(
                                   height: 300,
-                                  child: Image.asset("images/app-logo.jpeg")
+                                  child: Image.asset("images/app-logo.jpg")
                               ),
                               // const Text('DAYCARE', style: TextStyle(color: Color(0xFF5996CB),
                               //   letterSpacing: 4,

@@ -25,7 +25,7 @@ Image getImg(ByteData bytes) {
 Checkbox getCheckbox(String name, bool value) {
   return Checkbox(
     decoration: BoxDecoration(
-        color: PdfColors.black,
+        //color: PdfColors.black,
         border: Border.all(color: PdfColors.black, width: 5, style: BorderStyle.solid)
     ),
     width: 6,
@@ -40,7 +40,7 @@ Checkbox getCheckbox(String name, bool value) {
 Checkbox getCheckboxThings(String name, bool value) {
   return Checkbox(
       decoration: BoxDecoration(
-          color: PdfColors.black,
+          //color: PdfColors.black,
           border: Border.all(color: PdfColors.black, width: 7, style: BorderStyle.solid)
       ),
       checkColor: value?PdfColors.black:PdfColors.white,
@@ -54,7 +54,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
   try {
     final Document pdf = Document();
 
-    final ByteData logoHeader = await rootBundle.load('images/app-logo.jpeg');
+    final ByteData logoHeader = await rootBundle.load('images/app-logo.jpg');
     final ByteData imgFooter = await rootBundle.load('images/pdf-footer.png');
     final ByteData moodHappy = await rootBundle.load('images/mood-happy.png');
     final ByteData moodSad = await rootBundle.load('images/mood-sad.png');
@@ -97,6 +97,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
     String volumeMilks = tempVolMilks.toString().replaceAll(regex, '');
 
     pdf.addPage(MultiPage(
+        maxPages: 100,
         pageFormat: PdfPageFormat.a4,
         margin: const EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,11 +143,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
         },
         build: (Context context) =>
         <Widget>[
-          Container(
-              padding: const EdgeInsets.symmetric(horizontal: 35),
-              child: Column(
+               Wrap(
+                 spacing: 15,
+                  runSpacing: 15,
                   children: [
-                    Row(
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Row(
                         children: [
                           Expanded(
                               child: Column(
@@ -208,9 +211,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               )
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Row(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Center(
@@ -280,15 +284,23 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ))
                           ),
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Meals: ', style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16)),
                           Table(
                               border: TableBorder.all(),
+                              columnWidths: {
+                                0: const FlexColumnWidth(),
+                                1: const FlexColumnWidth(),
+                                2: const FlexColumnWidth(),
+                                3: const FlexColumnWidth(),
+                                4: const FlexColumnWidth()
+                              },
                               children: [
                                 TableRow(
                                     children: [
@@ -624,9 +636,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('MILK: '),
@@ -642,9 +655,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Nap times: '),
@@ -769,9 +783,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Row(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Row(
                         children: [
                           Expanded(
                               child: Row(
@@ -822,9 +837,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               )
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('MY ACTIVITIES TODAY ARE:'),
@@ -1041,9 +1057,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('MEDICINE / VITAMIN: ' +
@@ -1064,9 +1081,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           ) : Container()
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Please bring for tomorrow:'),
@@ -1245,9 +1263,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    ),
-                    SizedBox(height: 15),
-                    Column(
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child:Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Special notes: '),
@@ -1259,10 +1278,9 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                               ]
                           )
                         ]
-                    )
+                    ))
                   ]
               )
-          )
         ]
     ));
 

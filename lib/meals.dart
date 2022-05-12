@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
+import 'api.dart';
 import 'mealEdit.dart';
 import 'accordion.dart';
 import 'navigationService.dart';
@@ -30,23 +31,23 @@ class _MealsState extends State<Meals> {
     // breakfast
     _mealName.add('breakfast');
     _mealKey.add('breakfast');
-    _mealDefault.add('Oatmeal');
+    _mealDefault.add('');
     // morningsnack
     _mealName.add('morning snack');
     _mealKey.add('morningsnack');
-    _mealDefault.add('Biscuit');
+    _mealDefault.add('');
     // lunch
     _mealName.add('lunch');
     _mealKey.add('lunch');
-    _mealDefault.add('Chicken porridge');
+    _mealDefault.add('');
     // afternoonsnack
     _mealName.add('afternoon snack');
     _mealKey.add('afternoonsnack');
-    _mealDefault.add('Fruits');
+    _mealDefault.add('');
     // dinner
     _mealName.add('dinner');
     _mealKey.add('dinner');
-    _mealDefault.add('Vegetable porridge');
+    _mealDefault.add('');
 
     for(int i=0;i<_mealName.length;i++) {
       String? notes = widget.getData('report,'+_mealKey[i]+'_notes');
@@ -56,6 +57,26 @@ class _MealsState extends State<Meals> {
       _mealNotesCtrl[i].addListener(() {
         widget.setData(_mealKey[i]+'_notes', _mealNotesCtrl[i].text.trim());
       });
+    }
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    _setMealDefault();
+
+    super.didChangeDependencies();
+  }
+
+  Future _setMealDefault() async {
+    List mealsConfig = await Api.getMealConfigByLocation(widget.getData('report,location_id'), widget.getData('report,date').split('-')[2]);
+    for(int i=0;i<_mealKey.length;i++) {
+      int mealIndex = mealsConfig.indexWhere((item) => item['type'] == _mealKey[i]);
+      if(mealIndex!=-1) {
+        setState(() {
+          _mealDefault[i] = mealsConfig[mealIndex]['meal'];
+        });
+      }
     }
   }
 
@@ -117,8 +138,10 @@ class _MealsState extends State<Meals> {
                   Expanded(
                       child: GestureDetector(
                           onTap: () {
-                            widget.setData(_mealKey[i]+'_qty', 'none');
-                            _setMealAuto(i);
+                            if(meal!='') {
+                              widget.setData(_mealKey[i] + '_qty', 'none');
+                              _setMealAuto(i);
+                            }
                           },
                           child: Container(
                               alignment: Alignment.center,
@@ -135,8 +158,10 @@ class _MealsState extends State<Meals> {
                   Expanded(
                       child: GestureDetector(
                           onTap: () {
-                            widget.setData(_mealKey[i]+'_qty', 'some');
-                            _setMealAuto(i);
+                            if(meal!='') {
+                              widget.setData(_mealKey[i] + '_qty', 'some');
+                              _setMealAuto(i);
+                            }
                           },
                           child: Container(
                               alignment: Alignment.center,
@@ -152,8 +177,10 @@ class _MealsState extends State<Meals> {
                   Expanded(
                       child: GestureDetector(
                           onTap: () {
-                            widget.setData(_mealKey[i]+'_qty', 'a lot');
-                            _setMealAuto(i);
+                            if(meal!='') {
+                              widget.setData(_mealKey[i] + '_qty', 'a lot');
+                              _setMealAuto(i);
+                            }
                           },
                           child: Container(
                               alignment: Alignment.center,
@@ -175,7 +202,7 @@ class _MealsState extends State<Meals> {
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: GestureDetector(
                       onTap: () {
-                        if(widget.getData('report,'+_mealKey[i]+'_qty') != '') {
+                        if(widget.getData('report,'+_mealKey[i]+'_qty') != null && widget.getData('report,'+_mealKey[i]+'_qty') != '') {
                           setState(() {
                             _mealNotes[i] = true;
                           });

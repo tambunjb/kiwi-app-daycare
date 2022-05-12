@@ -91,6 +91,15 @@ class Api {
     return _processReturn(response);
   }
 
+  static Future<dynamic> getMealConfigByLocation(String locationId, String dayOfMonth) async {
+    final response = await http.get(
+        Uri.parse(_baseUrl + 'meal-config/get-by-location/'+locationId+"/"+dayOfMonth),
+        headers: await _buildHeaders()
+    );
+
+    return _processReturn(response);
+  }
+
   static Future<dynamic> getReportRequiredFields() async {
     Map<String, String> queryParams = {
       'appid': 'kindercastleid'

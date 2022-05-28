@@ -132,6 +132,15 @@ class Api {
     return _processReturn(response);
   }
 
+  static Future<dynamic> getMapping() async {
+    final response = await http.get(
+        Uri.parse(_baseUrl + 'mapping/get-by-same-nanny-location'),
+        headers: await _buildHeaders()
+    );
+
+    return _processReturn(response);
+  }
+
   static Future<dynamic> getReportByDate(String date) async {
     Map<String, String> queryParams = {
       'date': date

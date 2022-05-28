@@ -110,12 +110,18 @@ class _ReportState extends State<Report>{
   }
 
   Future _buildReportList() async {
-    var _nanny = (await Api.getNanny())['rows'];
-    var _child = (await Api.getChild())['rows'];
+    // var _nanny = (await Api.getNanny())['rows'];
+    // var _child = (await Api.getChild())['rows'];
+    var _mapping = (await Api.getMapping())['rows'];
     var _report = (await Api.getReportByDate(date))['rows'];
 
-    _nanny.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
-    _child.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
+    // _nanny.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
+    // _child.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
+    _mapping.sort((a, b) {
+      int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
+      if (cmp != 0) return cmp;
+      return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
+    });
 
     await Api.getReportRequiredFields().then((res) {
       if(res!=null && res!='' && res.isNotEmpty && res['fields']!=null) {
@@ -124,9 +130,10 @@ class _ReportState extends State<Report>{
     });
 
     List _d = [];
-    for(var i = 0; i < _nanny.length; i++) {
-      for(var j = 0; j < _child.length; j++) {
-        int k = _report.indexWhere((e) => e['nanny_id'] == _nanny[i]['id'] && e['child_id'] == _child[j]['id']);
+    for(var i = 0; i < _mapping.length; i++) {
+      //for(var j = 0; j < _child.length; j++) {
+        //int k = _report.indexWhere((e) => e['nanny_id'] == _nanny[i]['id'] && e['child_id'] == _child[j]['id']);
+        int k = _report.indexWhere((e) => e['nanny_id'] == _mapping[i]['nanny_id'] && e['child_id'] == _mapping[i]['child_id']);
 
         // set data type
         if(k!=-1) {
@@ -162,11 +169,11 @@ class _ReportState extends State<Report>{
 
         var _item = {
           'id': k==-1?null:_report[k].remove('id'),
-          'nanny_id': _nanny[i]['id'],
-          'nanny_name': _nanny[i]['name'],
-          'location_id': _nanny[i]['location_id'],
-          'child_id': _child[j]['id'],
-          'child_name': _child[j]['name'],
+          'nanny_id': _mapping[i]['nanny_id'],
+          'nanny_name': _mapping[i]['nanny_name'],
+          'location_id': _mapping[i]['location_id'],
+          'child_id': _mapping[i]['child_id'],
+          'child_name': _mapping[i]['child_name'],
           'report': k==-1?<String, dynamic>{}:_report[k],
           'status': k>-1?(_report[k]['attendance']=='0'?'Absent':
               (_progressReport(_report[k])<1.0?'In-progress':(
@@ -181,7 +188,7 @@ class _ReportState extends State<Report>{
         if(_isToday || _item['report'].isNotEmpty) {
           _d.add(_item);
         }
-      }
+      //}
     }
 
     return _d;

@@ -75,6 +75,10 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
         'images/ellipse-fill.PNG');
     final ByteData ellipseEmpty = await rootBundle.load(
         'images/ellipse-empty.PNG');
+    final ByteData checkboxChecked = await rootBundle.load(
+        'images/checkbox-checked.png');
+    final ByteData checkboxUncheck = await rootBundle.load(
+        'images/checkbox-uncheck.png');
 
     double tempVolMilks = 0;
     String timeMilks = '';
@@ -306,7 +310,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                     children: [
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 3),
+                                              vertical: 5, horizontal: 1),
                                           child: Column(
                                               children: [
                                                 Text("Breakfast",
@@ -319,29 +323,45 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                                   //padding: EdgeInsets.all(2),
                                                     child: Row(
                                                         children: [
-                                                          getCheckbox(
-                                                              'breakfast_none',
-                                                              data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
-                                                                  'none'),
-                                                          SizedBox(width: 2),
+                                                          // getCheckbox(
+                                                          //     'breakfast_none',
+                                                          //     data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
+                                                          //         'none'),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
+                                                                      'none')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('None',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'breakfast_some',
-                                                              data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
-                                                                  'some'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
+                                                                      'some')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Some',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'breakfast_lot',
-                                                              data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
-                                                                  'a lot'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['breakfast_qty']!=null && data['report']['breakfast_qty'] ==
+                                                                      'a lot')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Lot',
                                                               style: const TextStyle(
                                                                   fontSize: 10))
@@ -353,7 +373,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                       ),
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 3),
+                                              vertical: 5, horizontal: 1),
                                           child: Column(
                                               children: [
                                                 Text("Snack",
@@ -366,29 +386,41 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                                   //padding: const EdgeInsets.all(5),
                                                     child: Row(
                                                         children: [
-                                                          getCheckbox(
-                                                              'morningsnack_none',
-                                                              data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
-                                                                  'none'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
+                                                                      'none')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('None',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'morningsnack_some',
-                                                              data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
-                                                                  'some'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
+                                                                      'some')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Some',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'morningsnack_lot',
-                                                              data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
-                                                                  'a lot'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['morningsnack_qty']!=null && data['report']['morningsnack_qty'] ==
+                                                                      'a lot')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Lot',
                                                               style: const TextStyle(
                                                                   fontSize: 10))
@@ -400,7 +432,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                       ),
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 3),
+                                              vertical: 5, horizontal: 1),
                                           child: Column(
                                               children: [
                                                 Text("Lunch",
@@ -413,29 +445,41 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                                   //padding: const EdgeInsets.all(5),
                                                     child: Row(
                                                         children: [
-                                                          getCheckbox(
-                                                              'lunch_none',
-                                                              data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
-                                                                  'none'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
+                                                                      'none')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('None',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'lunch_some',
-                                                              data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
-                                                                  'some'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
+                                                                      'some')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Some',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'lunch_lot',
-                                                              data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
-                                                                  'a lot'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['lunch_qty']!=null && data['report']['lunch_qty'] ==
+                                                                      'a lot')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Lot',
                                                               style: const TextStyle(
                                                                   fontSize: 10))
@@ -447,7 +491,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                       ),
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 3),
+                                              vertical: 5, horizontal: 1),
                                           child: Column(
                                               children: [
                                                 Text("Snack",
@@ -460,29 +504,41 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                                   //padding: const EdgeInsets.all(5),
                                                     child: Row(
                                                         children: [
-                                                          getCheckbox(
-                                                              'afternoonsnack_none',
-                                                              data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
-                                                                  'none'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
+                                                                      'none')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('None',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'afternoonsnack_some',
-                                                              data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
-                                                                  'some'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
+                                                                      'some')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Some',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'afternoonsnack_lot',
-                                                              data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
-                                                                  'a lot'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['afternoonsnack_qty']!=null && data['report']['afternoonsnack_qty'] ==
+                                                                      'a lot')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Lot',
                                                               style: const TextStyle(
                                                                   fontSize: 10))
@@ -494,7 +550,7 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                       ),
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 3),
+                                              vertical: 5, horizontal: 1),
                                           child: Column(
                                               children: [
                                                 Text("Dinner",
@@ -507,29 +563,41 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                                   //padding: const EdgeInsets.all(5),
                                                     child: Row(
                                                         children: [
-                                                          getCheckbox(
-                                                              'dinner_none',
-                                                              data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
-                                                                  'none'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
+                                                                      'none')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('None',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'dinner_some',
-                                                              data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
-                                                                  'some'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
+                                                                      'some')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Some',
                                                               style: const TextStyle(
                                                                   fontSize: 10)),
                                                           SizedBox(width: 3),
-                                                          getCheckbox(
-                                                              'dinner_lot',
-                                                              data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
-                                                                  'a lot'),
-                                                          SizedBox(width: 2),
+                                                          Container(
+                                                              height: 10,
+                                                              child: getImg(
+                                                                  (data['report']['dinner_qty']!=null && data['report']['dinner_qty'] ==
+                                                                      'a lot')
+                                                                      ? checkboxChecked
+                                                                      : checkboxUncheck)
+                                                          ),
+                                                          SizedBox(width: 1),
                                                           Text('Lot',
                                                               style: const TextStyle(
                                                                   fontSize: 10))
@@ -1099,8 +1167,14 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings('things_milk',
-                                                    things.contains('milk')),
+                                                //getCheckboxThings('things_milk',things.contains('milk')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('milk')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Milk'),
                                               ]
@@ -1110,9 +1184,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_diapers',
-                                                    things.contains('diapers')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('diapers')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Diapers'),
                                               ]
@@ -1122,9 +1200,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_socks',
-                                                    things.contains('socks')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('socks')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Socks'),
                                               ]
@@ -1139,10 +1221,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_swimsuit',
-                                                    things.contains(
-                                                        'swimsuit')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('swimsuit')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Swimsuit'),
                                               ]
@@ -1152,9 +1237,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_panties',
-                                                    things.contains('panties')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('panties')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Panties'),
                                               ]
@@ -1164,9 +1253,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_pajamas',
-                                                    things.contains('pajamas')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('pajamas')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Pajamas'),
                                               ]
@@ -1181,9 +1274,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_vitamin',
-                                                    things.contains('vitamin')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('vitamin')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Vitamin'),
                                               ]
@@ -1193,9 +1290,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_clothes',
-                                                    things.contains('clothes')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('clothes')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Clothes'),
                                               ]
@@ -1210,8 +1311,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings('things_soap',
-                                                    things.contains('soap')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('soap')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Soap'),
                                               ]
@@ -1221,9 +1327,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_shampoo',
-                                                    things.contains('shampoo')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('shampoo')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Shampoo'),
                                               ]
@@ -1238,9 +1348,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_towel',
-                                                    things.contains('towel')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('towel')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Towel'),
                                               ]
@@ -1250,9 +1364,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                               mainAxisAlignment: MainAxisAlignment
                                                   .start,
                                               children: [
-                                                getCheckboxThings(
-                                                    'things_nothing',
-                                                    things.contains('nothing')),
+                                                Container(
+                                                    height: 20,
+                                                    child: getImg(
+                                                        things.contains('nothing')
+                                                            ? checkboxChecked
+                                                            : checkboxUncheck)
+                                                ),
                                                 SizedBox(width: 5),
                                                 Text('Nothing'),
                                               ]

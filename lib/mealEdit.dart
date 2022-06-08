@@ -61,6 +61,8 @@ class _MealEditState extends State<MealEdit> {
                       child: Text('This change will only apply to Child '+widget.child, style: const TextStyle(fontSize: 15))
                   ),
                   TextField(
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
                     controller: _mealEditCtrl,
                     decoration: InputDecoration(
                       focusedBorder: const OutlineInputBorder(

@@ -117,11 +117,6 @@ class _ReportState extends State<Report>{
 
     // _nanny.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
     // _child.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
-    _mapping.sort((a, b) {
-      int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
-      if (cmp != 0) return cmp;
-      return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
-    });
 
     await Api.getReportRequiredFields().then((res) {
       if(res!=null && res!='' && res.isNotEmpty && res['fields']!=null) {
@@ -130,13 +125,23 @@ class _ReportState extends State<Report>{
     });
 
     List _d = [];
-    for(var i = 0; i < _mapping.length; i++) {
-      //for(var j = 0; j < _child.length; j++) {
+
+    if(_isToday) {
+      _mapping.sort((a, b) {
+        int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
+        if (cmp != 0) return cmp;
+        return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
+      });
+
+      for (var i = 0; i < _mapping.length; i++) {
+        //for(var j = 0; j < _child.length; j++) {
         //int k = _report.indexWhere((e) => e['nanny_id'] == _nanny[i]['id'] && e['child_id'] == _child[j]['id']);
-        int k = _report.indexWhere((e) => e['nanny_id'] == _mapping[i]['nanny_id'] && e['child_id'] == _mapping[i]['child_id']);
+        int k = _report.indexWhere((e) =>
+        e['nanny_id'] == _mapping[i]['nanny_id'] &&
+            e['child_id'] == _mapping[i]['child_id']);
 
         // set data type
-        if(k!=-1) {
+        if (k != -1) {
           _report[k].removeWhere((key, value) => value == null);
           _report[k].updateAll((key, value) => value.toString());
           _report[k].removeWhere((key, value) => value == '00:00:00');
@@ -168,27 +173,68 @@ class _ReportState extends State<Report>{
         }
 
         var _item = {
-          'id': k==-1?null:_report[k].remove('id'),
+          'id': k == -1 ? null : _report[k].remove('id'),
           'nanny_id': _mapping[i]['nanny_id'],
           'nanny_name': _mapping[i]['nanny_name'],
           'location_id': _mapping[i]['location_id'],
           'child_id': _mapping[i]['child_id'],
           'child_name': _mapping[i]['child_name'],
-          'report': k==-1?<String, dynamic>{}:_report[k],
-          'status': k>-1?(_report[k]['attendance']=='0'?'Absent':
-              (_progressReport(_report[k])<1.0?'In-progress':(
-                  _report[k]['shared_at']!=null?
-                  ('Shared at '+(
-                      DateFormat(_report[k]['shared_at'].toString().split(' ')[0]==_report[k]['date'].toString()?'HH:mm':'d MMM yyyy HH:mm').format(DateTime.parse(_report[k]['shared_at'].toString().split('.')[0]))
-                  )):'Ready to share'
-              ))):'Have not started',
-          'progress': (k==-1?0:_progressReport(_report[k])).toDouble()
+          'report': k == -1 ? <String, dynamic>{} : _report[k],
+          'status': k > -1 ? (_report[k]['attendance'] == '0' ? 'Absent' :
+          (_progressReport(_report[k]) < 1.0 ? 'In-progress' : (
+              _report[k]['shared_at'] != null ?
+              ('Shared at ' + (
+                  DateFormat(_report[k]['shared_at'].toString().split(' ')[0] ==
+                      _report[k]['date'].toString()
+                      ? 'HH:mm'
+                      : 'd MMM yyyy HH:mm').format(DateTime.parse(
+                      _report[k]['shared_at'].toString().split('.')[0]))
+              )) : 'Ready to share'
+          ))) : 'Have not started',
+          'progress': (k == -1 ? 0 : _progressReport(_report[k])).toDouble()
         };
 
-        if(_isToday || _item['report'].isNotEmpty) {
+        //if (_isToday || _item['report'].isNotEmpty) {
           _d.add(_item);
-        }
-      //}
+        //}
+        //}
+      }
+    } else {
+      _report.sort((a, b) {
+        int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
+        if (cmp != 0) return cmp;
+        return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
+      });
+
+      for (var i = 0; i < _report.length; i++) {
+        _report[i].removeWhere((key, value) => value == null);
+        _report[i].updateAll((key, value) => value.toString());
+        _report[i].removeWhere((key, value) => value == '00:00:00');
+
+        var _item = {
+          'id': _report[i]['id'],
+          'nanny_id': _report[i]['nanny_id'],
+          'nanny_name': _report[i]['nanny_name'],
+          'location_id': _report[i]['location_id'],
+          'child_id': _report[i]['child_id'],
+          'child_name': _report[i]['child_name'],
+          'report': _report[i],
+          'status': _report[i]['attendance'] == '0' ? 'Absent' :
+          (_progressReport(_report[i]) < 1.0 ? 'In-progress' : (
+              _report[i]['shared_at'] != null ?
+              ('Shared at ' + (
+                  DateFormat(_report[i]['shared_at'].toString().split(' ')[0] ==
+                      _report[i]['date'].toString()
+                      ? 'HH:mm'
+                      : 'd MMM yyyy HH:mm').format(DateTime.parse(
+                      _report[i]['shared_at'].toString().split('.')[0]))
+              )) : 'Ready to share'
+          )),
+          'progress': _progressReport(_report[i]).toDouble()
+        };
+
+        _d.add(_item);
+      }
     }
 
     return _d;

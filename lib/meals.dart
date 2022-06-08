@@ -114,23 +114,31 @@ class _MealsState extends State<Meals> {
           children: [
             Container(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                    children: [
-                      Text(toBeginningOfSentenceCase(_mealName[i]).toString()+': '+meal, style: const TextStyle(fontSize: 15)),
-                      Container(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: GestureDetector(
-                              onTap: () {
-                                NavigationService.instance.navigateToRoute(MaterialPageRoute(
-                                    builder: (BuildContext context){
-                                      return MealEdit(child: widget.getData('child_name'), mealKey: _mealKey[i], mealName: _mealName[i], meal: meal, setData: widget.setData);
-                                    }
-                                ));
-                              },
-                              child: const Icon(Icons.edit, size: 16)
+                child: GestureDetector(
+                    onTap: () {
+                      NavigationService.instance.navigateToRoute(MaterialPageRoute(
+                          builder: (BuildContext context){
+                            return MealEdit(child: widget.getData('child_name'), mealKey: _mealKey[i], mealName: _mealName[i], meal: meal, setData: widget.setData);
+                          })
+                        );
+                      },
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text.rich(
+                            TextSpan(
+                              text: toBeginningOfSentenceCase(_mealName[i]).toString()+': '+meal+' ',
+                              style: const TextStyle(fontSize: 15),
+                              children: const [
+                                WidgetSpan(
+                                  child: Icon(Icons.edit, size: 16)
+                                )
+                              ]
+                            )
                           )
-                      )
-                    ]
+                        )
+                      ]
+                    )
                 )
             ),
             Row(
@@ -199,7 +207,7 @@ class _MealsState extends State<Meals> {
             Visibility(
               visible: !_mealNotes[i],
               child: Container(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  padding: const EdgeInsets.only(top: 10, bottom: 20),
                   child: GestureDetector(
                       onTap: () {
                         if(widget.getData('report,'+_mealKey[i]+'_qty') != null && widget.getData('report,'+_mealKey[i]+'_qty') != '') {

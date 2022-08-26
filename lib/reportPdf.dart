@@ -163,13 +163,13 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                         .format(DateTime.parse(
                                         data['report']['date'].toString().split('.')[0])):'')
                                     ),
-                                    Text('Arrival time: ' + (data['report']['arrival_time']!=null?(
+                                    Text('Arrival time: ' + (data['report']['attendance']=='0'?'Absent':(data['report']['arrival_time']!=null?(
                                         data['report']['arrival_time']
                                             .toString()
                                             .split(':')[0] + ':' +
                                         data['report']['arrival_time']
                                             .toString()
-                                            .split(':')[1]):'')
+                                            .split(':')[1]):''))
                                     ),
                                     Row(
                                         children: [

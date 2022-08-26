@@ -6,8 +6,9 @@ import 'accordion.dart';
 class ThingsToBringTmr extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  ThingsToBringTmr({Key? key, required this.getData, required this.setData}) : super(key: key);
+  ThingsToBringTmr({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _ThingsToBringTmrState createState() => _ThingsToBringTmrState();
@@ -90,7 +91,8 @@ class _ThingsToBringTmrState extends State<ThingsToBringTmr> {
                 ),
               )
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

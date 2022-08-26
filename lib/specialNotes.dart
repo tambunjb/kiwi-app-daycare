@@ -6,8 +6,9 @@ import 'accordion.dart';
 class SpecialNotes extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  SpecialNotes({Key? key, required this.getData, required this.setData}) : super(key: key);
+  SpecialNotes({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _SpecialNotesState createState() => _SpecialNotesState();
@@ -50,7 +51,8 @@ class _SpecialNotesState extends State<SpecialNotes> {
                   color: Colors.grey),
             ),
           ),
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

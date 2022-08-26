@@ -7,7 +7,7 @@ import 'config.dart';
 
 class Api {
 
-  static const String _baseUrl = 'https://api.kindercastle.co.id/';
+  static const String _baseUrl = 'https://api.kindercastle.co.id/'; // 'http://192.168.1.12/'
   static const String _contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
 
   static Future<Map<String, String>> _buildHeaders({bool token = true}) async {
@@ -192,6 +192,22 @@ class Api {
   static Future<bool> setReportAbsent(String id) async {
     final response = await http.post(
         Uri.parse(_baseUrl + 'report/set-absent/'+id),
+        headers: await _buildHeaders()
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return true;
+    } else {
+      log(response.body);
+    }
+
+    return false;
+  }
+
+  static Future<bool> sendReportNotif(String id) async {
+    final response = await http.post(
+        Uri.parse(_baseUrl + 'report/send-notif/'+id),
         headers: await _buildHeaders()
     );
 

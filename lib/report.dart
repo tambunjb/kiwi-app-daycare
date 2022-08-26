@@ -57,7 +57,7 @@ class _ReportState extends State<Report>{
   }
 
   _showAppUpdateModalDialog(context, needUpdate) {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
           context: context,
           barrierDismissible: false,
@@ -130,7 +130,7 @@ class _ReportState extends State<Report>{
       _mapping.sort((a, b) {
         int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
         if (cmp != 0) return cmp;
-        return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
+        return a['child_nickname'].toString().toLowerCase().compareTo(b['child_nickname'].toString().toLowerCase());
       });
 
       for (var i = 0; i < _mapping.length; i++) {
@@ -179,6 +179,7 @@ class _ReportState extends State<Report>{
           'location_id': _mapping[i]['location_id'],
           'child_id': _mapping[i]['child_id'],
           'child_name': _mapping[i]['child_name'],
+          'child_nickname': _mapping[i]['child_nickname'],
           'report': k == -1 ? <String, dynamic>{} : _report[k],
           'status': k > -1 ? (_report[k]['attendance'] == '0' ? 'Absent' :
           (_progressReport(_report[k]) < 1.0 ? 'In-progress' : (
@@ -203,7 +204,7 @@ class _ReportState extends State<Report>{
       _report.sort((a, b) {
         int cmp = a['nanny_name'].toString().toLowerCase().compareTo(b['nanny_name'].toString().toLowerCase());
         if (cmp != 0) return cmp;
-        return a['child_name'].toString().toLowerCase().compareTo(b['child_name'].toString().toLowerCase());
+        return a['child_nickname'].toString().toLowerCase().compareTo(b['child_nickname'].toString().toLowerCase());
       });
 
       for (var i = 0; i < _report.length; i++) {
@@ -218,6 +219,7 @@ class _ReportState extends State<Report>{
           'location_id': _report[i]['location_id'],
           'child_id': _report[i]['child_id'],
           'child_name': _report[i]['child_name'],
+          'child_nickname': _report[i]['child_nickname'],
           'report': _report[i],
           'status': _report[i]['attendance'] == '0' ? 'Absent' :
           (_progressReport(_report[i]) < 1.0 ? 'In-progress' : (
@@ -433,7 +435,7 @@ class _ReportState extends State<Report>{
                             //if(_isToday) {
                               NavigationService.instance.navigateToRoute(MaterialPageRoute(
                                   builder: (BuildContext context){
-                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report']['milk_sessions'], isToday: _isToday);
+                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report']['milk_sessions'], isToday: _isToday, requiredList: _requiredList);
                                   }
                               ));
                             //}
@@ -442,7 +444,7 @@ class _ReportState extends State<Report>{
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(padding: const EdgeInsets.only(bottom:3), child: Text(data[index]['nanny_name'], style: const TextStyle(fontSize: 15))),
-                                Padding(padding: const EdgeInsets.only(bottom:8), child: Text(data[index]['child_name'], style: const TextStyle(fontSize: 20)))
+                                Padding(padding: const EdgeInsets.only(bottom:8), child: Text(data[index]['child_nickname'], style: const TextStyle(fontSize: 20)))
                               ]
                           ),
                           subtitle: Row(

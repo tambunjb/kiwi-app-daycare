@@ -10,8 +10,9 @@ import 'navigationService.dart';
 class Meals extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  Meals({Key? key, required this.getData, required this.setData}) : super(key: key);
+  Meals({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _MealsState createState() => _MealsState();
@@ -118,7 +119,7 @@ class _MealsState extends State<Meals> {
                     onTap: () {
                       NavigationService.instance.navigateToRoute(MaterialPageRoute(
                           builder: (BuildContext context){
-                            return MealEdit(child: widget.getData('child_name'), mealKey: _mealKey[i], mealName: _mealName[i], meal: meal, setData: widget.setData);
+                            return MealEdit(child: widget.getData('child_nickname'), mealKey: _mealKey[i], mealName: _mealName[i], meal: meal, setData: widget.setData);
                           })
                         );
                       },
@@ -263,7 +264,8 @@ class _MealsState extends State<Meals> {
         content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: items
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

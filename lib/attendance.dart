@@ -8,8 +8,9 @@ class Attendance extends StatefulWidget {
   Function setData;
   Function getIsValid;
   Function setIsValid;
+  bool reqCategoryFilled;
 
-  Attendance({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid}) : super(key: key);
+  Attendance({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _AttendanceState createState() => _AttendanceState();
@@ -179,7 +180,8 @@ class _AttendanceState extends State<Attendance>{
                   )
                 ]
             ),
-            showContent: true
+            showContent: true,
+            reqCategoryFilled: widget.reqCategoryFilled
         ),
       ]
     );

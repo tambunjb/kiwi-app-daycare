@@ -27,8 +27,9 @@ class ReportForm extends StatefulWidget{
   dynamic milks;
   final Function progressReport;
   final bool isToday;
+  final List<String> requiredList;
 
-  ReportForm({Key? key, required this.data, required this.progressReport, required this.milks, required this.isToday}) : super(key: key) {
+  ReportForm({Key? key, required this.data, required this.progressReport, required this.milks, required this.isToday, required this.requiredList}) : super(key: key) {
     if(milks != null && milks.runtimeType == String) {
       milks = milks.replaceAll('null', '||||');
       milks = milks.replaceAll('{', '{"');
@@ -72,6 +73,24 @@ class _ReportFormState extends State<ReportForm> {
   List<bool?> _isValidMilk = [];
   int _initLengthMilks = 0;
   bool _isUpdated = false;
+
+  // required per category
+  List<bool> _reqCategoryFilled = [false, false, false, false, false, false, false, false, false, false, false];
+  final List<List<String>> _reqCategoryFields = [
+    ['attendance', 'arrival_time'],
+    ['weight', 'temperature', 'child_feeling', 'condition'],
+    ['breakfast', 'morningsnack', 'lunch', 'afternoonsnack', 'dinner', 'breakfast_qty', 'morningsnack_qty', 'lunch_qty', 'afternoonsnack_qty', 'dinner_qty'],
+    [],
+    [],
+    ['num_of_potty'],
+    ['activities'],
+    ['is_morning_bath', 'is_afternoon_bath'],
+    ['medication'],
+    ['things_tobring_tmr'],
+    ['special_notes']
+  ];
+  List<List<String>> _reqCategoryFieldsMapped = [];
+  Map<String, int> _reqAtrMapped = {};
 
   @override
   void initState() {
@@ -122,6 +141,30 @@ class _ReportFormState extends State<ReportForm> {
       _milks.add({});
       _isValidMilk.add(null);
     }
+
+    // required fields filled
+    for(int i=0;i<_reqCategoryFields.length;i++) {
+      _reqCategoryFieldsMapped.add([]);
+      for(int j=0;j<_reqCategoryFields[i].length;j++) {
+        if(widget.requiredList.contains(_reqCategoryFields[i][j])) {
+          _reqCategoryFieldsMapped[i].add(_reqCategoryFields[i][j]);
+          _reqAtrMapped.addAll({_reqCategoryFields[i][j]: i});
+        }
+      }
+    }
+    for(int i=0;i<_reqCategoryFieldsMapped.length;i++) {
+      bool _flagTemp = true;
+      for(int j=0;j<_reqCategoryFieldsMapped[i].length;j++) {
+        if(_data['report'][_reqCategoryFieldsMapped[i][j]]==null || _data['report'][_reqCategoryFieldsMapped[i][j]].toString().trim()=='') {
+          _flagTemp = false;
+          break;
+        }
+      }
+      if(_flagTemp && _reqCategoryFieldsMapped[i].isNotEmpty) {
+        _reqCategoryFilled[i] = true;
+      }
+    }
+
   }
 
   void _addMilkSession() {
@@ -184,6 +227,25 @@ class _ReportFormState extends State<ReportForm> {
               ):'Ready to share'
             )
         );
+        // _data['report']['is_ready_to_share'] = _data['progress']==1.0?'1':'0';
+      });
+
+      _setRequiredCategory(label);
+    }
+  }
+
+  void _setRequiredCategory(String label) {
+    if(_reqAtrMapped[label]!=null) {
+      int i = _reqAtrMapped[label]!;
+      bool _reqValid = true;
+      for(int j = 0; j < _reqCategoryFieldsMapped[i].length; j++) {
+        if(_isValid['isvalid_'+_reqCategoryFieldsMapped[i][j]]==false || _data['report'][_reqCategoryFieldsMapped[i][j]] == null || _data['report'][_reqCategoryFieldsMapped[i][j]].toString().trim() == '') {
+          _reqValid = false;
+          break;
+        }
+      }
+      setState(() {
+        _reqCategoryFilled[i] = _reqValid;
       });
     }
   }
@@ -197,6 +259,8 @@ class _ReportFormState extends State<ReportForm> {
       setState(() {
         _isValid[label] = valid;
       });
+
+      _setRequiredCategory(label.replaceAll('isvalid_', ''));
     }
   }
 
@@ -212,7 +276,7 @@ class _ReportFormState extends State<ReportForm> {
     }
   }
 
-  void _formSubmit({bool isBack = true, bool sharePastDate = false}) async {
+  Future<void> _formSubmit({bool isBack = true, bool sharePastDate = false}) async {
     if(widget.isToday) {
       _validateForm();
       Map<String, dynamic> report = _data['report'];
@@ -249,6 +313,10 @@ class _ReportFormState extends State<ReportForm> {
           // set absent
           report = <String, String>{};
           report['attendance'] = '0';
+          report['nanny_id'] = _data['nanny_id'].toString();
+          report['child_id'] = _data['child_id'].toString();
+          report['location_id'] = _data['location_id'].toString();
+          report['date'] = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
         }
 
         _isUpdated = true;
@@ -302,11 +370,25 @@ class _ReportFormState extends State<ReportForm> {
     }
   }
 
+  void onBack(context) async {
+    await _formSubmit(isBack: false);
+    if(widget.isToday && _isUpdated && (_data['report']['attendance']=='0' || _data['progress']==1.0)) {
+        _showSendReportDialog(context, 'back');
+    } else if (_isUpdated) {
+      NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
+    } else {
+      NavigationService.instance.goBack();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
+    int _reqCategoryCounter = 0;
     return WillPopScope(
-        onWillPop: () async { _formSubmit(); return false; },
+        onWillPop: () async {
+          onBack(context);
+          return false;
+        },
         child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -314,7 +396,7 @@ class _ReportFormState extends State<ReportForm> {
           elevation: 0.0,
           leading: GestureDetector(
               onTap: () {
-                _formSubmit();
+                onBack(context);
               },
               child: const Icon(Icons.arrow_back)
           ),
@@ -329,14 +411,18 @@ class _ReportFormState extends State<ReportForm> {
           ),
           actions: [
             GestureDetector(
-                onTap: () {
-                    if(_data['report']['attendance']=='1' && _data['progress']==1.0) {
+                onTap: () async {
+                  if (_data['report']['attendance'] == '0' || _data['progress'] == 1.0) {
+                    if(widget.isToday) {
+                      await _showSendReportDialog(context, 'share');
+                    } else {
                       Fluttertoast.showToast(msg: 'Processing to share, please wait...');
                       reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
-                    } else if(_data['report']['attendance']=='1') {
-                      Fluttertoast.showToast(msg: 'Complete the form first to share');
                     }
-                  },
+                  } else {
+                    _showReportNotFinishDialog(context);
+                  }
+                },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: const Icon(Icons.share),
@@ -345,7 +431,7 @@ class _ReportFormState extends State<ReportForm> {
           ],
         ),
         backgroundColor: Colors.white,
-        body: ListView(
+        body: Column(children:[Expanded(child:ListView(
             padding: const EdgeInsets.only(left: 5, right: 5),
             children: [
               Visibility(
@@ -381,7 +467,7 @@ class _ReportFormState extends State<ReportForm> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(padding: const EdgeInsets.only(bottom:3), child: Text(_data['nanny_name'], style: const TextStyle(fontSize: 15))),
-                        Padding(padding: const EdgeInsets.only(bottom:8), child: Text(_data['child_name'], style: const TextStyle(fontSize: 20)))
+                        Padding(padding: const EdgeInsets.only(bottom:8), child: Text(_data['child_nickname'], style: const TextStyle(fontSize: 20)))
                       ]
                   ),
                   subtitle: Row(
@@ -408,19 +494,177 @@ class _ReportFormState extends State<ReportForm> {
                   ),
                 ),
               ),
-              Attendance(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
-              MoodAndHealth(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
-              Meals(getData: _getData, setData: _setData),
-              Milk(initLength: _initLengthMilks, getMilkData: _getMilkData, setMilkData: _setMilkData, getIsValidMilk: _getIsValidMilk, setIsValidMilk: _setIsValidMilk, addMilkSession: _addMilkSession),
-              Nap(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
-              Potty(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid),
-              Activities(getData: _getData, setData: _setData),
-              Bath(getData: _getData, setData: _setData),
-              Medication(getData: _getData, setData: _setData),
-              ThingsToBringTmr(getData: _getData, setData: _setData),
-              SpecialNotes(getData: _getData, setData: _setData)
+              Attendance(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              MoodAndHealth(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Meals(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Milk(initLength: _initLengthMilks, getMilkData: _getMilkData, setMilkData: _setMilkData, getIsValidMilk: _getIsValidMilk, setIsValidMilk: _setIsValidMilk, addMilkSession: _addMilkSession, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Nap(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Potty(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Activities(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Bath(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Medication(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              ThingsToBringTmr(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              SpecialNotes(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++])
             ]
-        )
+        )),
+            Container(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                          child: ElevatedButton(
+                              onPressed: () {
+                                if(widget.isToday) {
+                                  if (_data['report']['attendance'] == '0' || _data['progress'] == 1.0) {
+                                    _showSendReportDialog(context, 'send');
+                                  } else {
+                                    _showReportNotFinishDialog(context);
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(primary: (widget.isToday && (_data['report']['attendance']=='0' || _data['progress']==1.0))?const Color(0xFF197CD0):Colors.grey),
+                              child: Container(
+                                  padding: const EdgeInsets.all(15),
+                                  child: const Text('KIRIM LAPORAN', style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                      fontSize: 15))
+                              )
+                          )
+                      )
+                    ]
+                )
+            )])
     ));
+  }
+
+  _showSendReportDialog(context, String trigger){
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius:BorderRadius.circular(7)),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text('Kirim laporan sekarang?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 20),
+                          Text('Jika dilanjutkan, parent akan segera menerima laporan.', style: TextStyle(fontSize: 16)),
+                          SizedBox(height: 15),
+                          Text('Anda tetap bisa memperbarui informasi setelah laporan ini dikirim.', style: TextStyle(fontSize: 16))
+                        ]
+                      )
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          child: GestureDetector(
+                            onTap: () {
+                              NavigationService.instance.goBack();
+
+                              if(trigger == 'share') {
+                                Fluttertoast.showToast(msg: 'Processing to share, please wait...');
+                                reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                              } else if(trigger == 'back') {
+                                if (_isUpdated) {
+                                  NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
+                                } else {
+                                  NavigationService.instance.goBack();
+                                }
+                              }
+                            },
+                            child: const Text('TUNGGU DULU', style: TextStyle(color: Color(0xFF197CD0), letterSpacing: 1, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(left: 30),
+                            child: GestureDetector(
+                                onTap: () async {
+                                  if(trigger == 'send' || trigger == 'share') {
+                                    await _formSubmit(isBack: false);
+                                  }
+
+                                  Fluttertoast.showToast(msg: 'Processing to send report, please wait...');
+                                  await Api.sendReportNotif(_data['id'].toString());
+                                  Fluttertoast.showToast(msg: 'Report notification successfully sent to parent.');
+
+                                  NavigationService.instance.goBack();
+
+                                  if(trigger == 'share') {
+                                    Fluttertoast.showToast(msg: 'Processing to share, please wait...');
+                                    reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                                  } else if(trigger == 'back') {
+                                    if (_isUpdated) {
+                                      NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
+                                    } else {
+                                      NavigationService.instance.goBack();
+                                    }
+                                  }
+                                },
+                                child: const Text('KIRIM', style: TextStyle(color: Color(0xFF197CD0), letterSpacing: 1, fontWeight: FontWeight.bold))
+                            )
+                        )
+                      ]
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  _showReportNotFinishDialog(context){
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius:BorderRadius.circular(7)),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text('Laporan belum selesai', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 20),
+                            Text('Ada beberapa informasi yang belum Anda isi.', style: TextStyle(fontSize: 16)),
+                            SizedBox(height: 15),
+                            Text('Jika anak tidak hadir, mohon klik "Absent" sebelum mengirim laporan.', style: TextStyle(fontSize: 16))
+                          ]
+                      )
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            NavigationService.instance.goBack();
+                          },
+                          child: const Text('OK', style: TextStyle(color: Color(0xFF197CD0), letterSpacing: 1, fontWeight: FontWeight.bold)),
+                        )
+                      ]
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

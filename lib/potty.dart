@@ -8,8 +8,9 @@ class Potty extends StatefulWidget {
   Function setData;
   Function getIsValid;
   Function setIsValid;
+  bool reqCategoryFilled;
 
-  Potty({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid}) : super(key: key);
+  Potty({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _PottyState createState() => _PottyState();
@@ -137,7 +138,8 @@ class _PottyState extends State<Potty> {
                   )
               ),
             ]
-        )
+        ),
+      reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

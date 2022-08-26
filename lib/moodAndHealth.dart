@@ -8,8 +8,9 @@ class MoodAndHealth extends StatefulWidget {
   Function setData;
   Function getIsValid;
   Function setIsValid;
+  bool reqCategoryFilled;
 
-  MoodAndHealth({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid}) : super(key: key);
+  MoodAndHealth({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _MoodAndHealthState createState() => _MoodAndHealthState();
@@ -306,7 +307,8 @@ class _MoodAndHealthState extends State<MoodAndHealth> {
                 ),
               ),
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

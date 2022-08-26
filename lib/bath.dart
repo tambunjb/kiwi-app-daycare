@@ -6,8 +6,9 @@ import 'accordion.dart';
 class Bath extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  Bath({Key? key, required this.getData, required this.setData}) : super(key: key);
+  Bath({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _BathState createState() => _BathState();
@@ -75,7 +76,8 @@ class _BathState extends State<Bath> {
                 )
               )
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

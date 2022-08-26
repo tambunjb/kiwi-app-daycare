@@ -6,8 +6,9 @@ import 'accordion.dart';
 class Medication extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  Medication({Key? key, required this.getData, required this.setData}) : super(key: key);
+  Medication({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _MedicationState createState() => _MedicationState();
@@ -186,7 +187,8 @@ class _MedicationState extends State<Medication> {
                   )
               ),
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

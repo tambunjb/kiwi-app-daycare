@@ -5,8 +5,9 @@ class Accordion extends StatefulWidget {
   final Icon leadIcon;
   final Widget content;
   bool showContent;
+  bool reqCategoryFilled;
 
-  Accordion({Key? key, required this.title, required this.leadIcon, required this.content, this.showContent = false/*, required this.setShowContent, required this.keyShowContent*/})
+  Accordion({Key? key, required this.title, required this.leadIcon, required this.content, this.showContent = false, required this.reqCategoryFilled})
       : super(key: key);
 
   @override
@@ -26,7 +27,7 @@ class _AccordionState extends State<Accordion> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color: const Color(0xFFFDFAEA),
+      color: widget.reqCategoryFilled? const Color(0xFFDEFEE7) : const Color(0xFFFDFAEA),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

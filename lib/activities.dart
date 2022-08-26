@@ -6,8 +6,9 @@ import 'accordion.dart';
 class Activities extends StatefulWidget {
   Function getData;
   Function setData;
+  bool reqCategoryFilled;
 
-  Activities({Key? key, required this.getData, required this.setData}) : super(key: key);
+  Activities({Key? key, required this.getData, required this.setData, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _ActivitiesState createState() => _ActivitiesState();
@@ -81,7 +82,8 @@ class _ActivitiesState extends State<Activities> {
             ),
           )
         ]
-      )
+      ),
+      reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

@@ -11,8 +11,9 @@ class Milk extends StatefulWidget {
   Function setIsValidMilk;
   Function addMilkSession;
   int initLength;
+  bool reqCategoryFilled;
 
-  Milk({Key? key, required this.initLength, required this.getMilkData, required this.setMilkData, required this.getIsValidMilk, required this.setIsValidMilk, required this.addMilkSession}) : super(key: key);
+  Milk({Key? key, required this.initLength, required this.getMilkData, required this.setMilkData, required this.getIsValidMilk, required this.setIsValidMilk, required this.addMilkSession, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _MilkState createState() => _MilkState();
@@ -354,7 +355,8 @@ class _MilkState extends State<Milk> {
                   )
               ),
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

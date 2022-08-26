@@ -8,8 +8,9 @@ class Nap extends StatefulWidget {
   Function setData;
   Function getIsValid;
   Function setIsValid;
+  bool reqCategoryFilled;
 
-  Nap({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid}) : super(key: key);
+  Nap({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _NapState createState() => _NapState();
@@ -313,7 +314,8 @@ class _NapState extends State<Nap> {
                   children: items
               )
             ]
-        )
+        ),
+        reqCategoryFilled: widget.reqCategoryFilled
     );
   }
 }

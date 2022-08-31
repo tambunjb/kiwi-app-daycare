@@ -14,6 +14,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login>{
   final _phone = TextEditingController();
   String? _errorText;
+  bool _loginClicked = false;
 
   bool _validateMobile() {
     String pattern = r'(^(?:[+0]9)?[0-9]{10,13}$)';
@@ -103,22 +104,34 @@ class _LoginState extends State<Login>{
                           Expanded(
                               child: ElevatedButton(
                                   onPressed: () async {
-                                    if(_validateMobile()) {
-                                      final login = await Api.login(_phone.text
-                                          .trim());
-                                      if(login){
-                                        NavigationService.instance.navigateToReplacement("home");
-                                      }else{
-                                        setState(() {
-                                          _errorText = 'Authentication failed';
-                                        });
+                                    if(!_loginClicked) {
+                                      setState(() {
+                                        _loginClicked = true;
+                                      });
+                                      if (_validateMobile()) {
+                                        final login = await Api.login(_phone.text
+                                            .trim());
+                                        if (login) {
+                                          NavigationService.instance.navigateToReplacement("home");
+                                        } else {
+                                          setState(() {
+                                            _errorText = 'Authentication failed';
+                                          });
+                                        }
                                       }
+                                      setState(() {
+                                        _loginClicked = false;
+                                      });
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(primary: const Color(0xFF197CD0)),
                                   child: Container(
                                       padding: const EdgeInsets.all(15),
-                                      child: const Text('LOG IN', style: TextStyle(
+                                      child: _loginClicked ? const SizedBox(
+                                        height: 19.0,
+                                        width: 19.0,
+                                        child: CircularProgressIndicator(color: Colors.white),
+                                      ) : const Text('LOG IN', style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 1,
                                           fontSize: 15))

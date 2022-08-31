@@ -51,7 +51,7 @@ class _ReportState extends State<Report>{
 
   Future<void> _checkVersionUpdate() async {
     final needUpdate = await Api.getVersionUpdate();
-    if(needUpdate!=null && needUpdate.isNotEmpty && (needUpdate['forced'].toString()=='1' || needUpdate['recommend'].toString()=='1')) {
+    if(needUpdate!=null && needUpdate is Map && needUpdate.isNotEmpty && (needUpdate['forced'].toString()=='1' || needUpdate['recommend'].toString()=='1')) {
       _showAppUpdateModalDialog(context, needUpdate);
     }
   }
@@ -463,7 +463,7 @@ class _ReportState extends State<Report>{
                           leading: CustomPaint(
                             foregroundPainter: ProgressPainter((data[index]['progress']).toDouble()),
                             child: CircleAvatar(
-                              child: Text(data[index]['child_name'].toString().toUpperCase()[0]+(data[index]['child_name'].toString().split(' ').length>1?data[index]['child_name'].toString().split(' ')[1].toUpperCase()[0]:''), style: const TextStyle(fontSize: 27)),
+                              child: Text(data[index]['child_nickname'].toString().toUpperCase()[0]+(data[index]['child_nickname'].toString().split(' ').length>1?data[index]['child_nickname'].toString().split(' ')[1].toUpperCase()[0]:''), style: const TextStyle(fontSize: 27)),
                               backgroundColor: data[index]['report']!=null && data[index]['report']['attendance']=='0'?const Color(0xFFFFCB9A):const Color(0xFFDDF284),
                               foregroundColor: Colors.black,
                               radius: 30,

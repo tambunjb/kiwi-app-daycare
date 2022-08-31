@@ -290,9 +290,10 @@ class _ReportFormState extends State<ReportForm> {
           if (report['attendance'].toString() == '0') {
             if(widget.data['report']['attendance'].toString() == '1') {
               await Api.setReportAbsent(_data['id'].toString());
-            }else{
-              _isUpdated = false;
             }
+            // else{
+            //   _isUpdated = false;
+            // }
           } else {
             // set utc +7
             if (report['shared_at'] != null && report['shared_at'] != '') {
@@ -317,6 +318,11 @@ class _ReportFormState extends State<ReportForm> {
           report['child_id'] = _data['child_id'].toString();
           report['location_id'] = _data['location_id'].toString();
           report['date'] = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
+          // if(_data['report']['shared_at']!=null) {
+          //   report['shared_at'] = _data['report']['shared_at'].toString();
+          // } else if(widget.data['report']['shared_at']!=null) {
+          //   report['shared_at'] = widget.data['report']['shared_at'].toString();
+          // }
         }
 
         _isUpdated = true;
@@ -413,14 +419,14 @@ class _ReportFormState extends State<ReportForm> {
             GestureDetector(
                 onTap: () async {
                   if (_data['report']['attendance'] == '0' || _data['progress'] == 1.0) {
-                    if(widget.isToday) {
-                      await _showSendReportDialog(context, 'share');
-                    } else {
+                    // if(widget.isToday) {
+                    //   await _showSendReportDialog(context, 'share');
+                    // } else {
                       Fluttertoast.showToast(msg: 'Processing to share, please wait...');
                       reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
-                    }
+                    //}
                   } else {
-                    _showReportNotFinishDialog(context);
+                    Fluttertoast.showToast(msg: 'Complete the form first to share');
                   }
                 },
                   child: Container(
@@ -486,7 +492,7 @@ class _ReportFormState extends State<ReportForm> {
                   leading: CustomPaint(
                     foregroundPainter: ProgressPainter(_data['progress']),
                     child: CircleAvatar(
-                      child: Text(_data['child_name'].toString().toUpperCase()[0]+(_data['child_name'].toString().split(' ').length>1?_data['child_name'].toString().split(' ')[1].toUpperCase()[0]:''), style: const TextStyle(fontSize: 27)),
+                      child: Text(_data['child_nickname'].toString().toUpperCase()[0]+(_data['child_nickname'].toString().split(' ').length>1?_data['child_nickname'].toString().split(' ')[1].toUpperCase()[0]:''), style: const TextStyle(fontSize: 27)),
                       backgroundColor: _data['report']!=null && _data['report']['attendance']=='0'?const Color(0xFFFFCB9A):const Color(0xFFDDF284),
                       foregroundColor: Colors.black,
                       radius: 30,

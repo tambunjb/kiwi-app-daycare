@@ -28,7 +28,7 @@ class Api {
 
   static Future<bool> login(String phone) async {
     final response = await http.post(
-        Uri.parse(_baseUrl + 'login'),
+        Uri.parse(_baseUrl + 'login-nanny'),
         headers: await _buildHeaders(token: false),
         body: await _processBody({'phone': phone })
       );
@@ -189,10 +189,11 @@ class Api {
     return false;
   }
 
-  static Future<bool> setReportAbsent(String id) async {
+  static Future<bool> setReportAbsent(String id, {String shared_at = ''}) async {
     final response = await http.post(
-        Uri.parse(_baseUrl + 'report/set-absent/'+id),
-        headers: await _buildHeaders()
+        Uri.parse(_baseUrl + 'report/set-absent/' + id),
+        headers: await _buildHeaders(),
+        body: await _processBody(shared_at!=''?{'shared_at': shared_at}:{})
     );
 
     if (response.statusCode == 200) {

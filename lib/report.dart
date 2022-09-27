@@ -181,8 +181,8 @@ class _ReportState extends State<Report>{
           'child_name': _mapping[i]['child_name'],
           'child_nickname': _mapping[i]['child_nickname'],
           'report': k == -1 ? <String, dynamic>{} : _report[k],
-          'status': k > -1 ? (_report[k]['attendance'] == '0' ? 'Absent' :
-          (_progressReport(_report[k]) < 1.0 ? 'In-progress' : (
+          'status': k > -1 ? ((_report[k]['attendance'] == '0' && _report[k]['shared_at'] == null) ? 'Absent' :
+          ((_progressReport(_report[k]) < 1.0 && _report[k]['attendance'] == '1')? 'In-progress' : (
               _report[k]['shared_at'] != null ?
               ('Shared at ' + (
                   DateFormat(_report[k]['shared_at'].toString().split(' ')[0] ==
@@ -221,8 +221,8 @@ class _ReportState extends State<Report>{
           'child_name': _report[i]['child_name'],
           'child_nickname': _report[i]['child_nickname'],
           'report': _report[i],
-          'status': _report[i]['attendance'] == '0' ? 'Absent' :
-          (_progressReport(_report[i]) < 1.0 ? 'In-progress' : (
+          'status': (_report[i]['attendance'] == '0' && _report[i]['shared_at'] == null) ? 'Absent' :
+          ((_progressReport(_report[i]) < 1.0 && _report[i]['attendance'] == '1') ? 'In-progress' : (
               _report[i]['shared_at'] != null ?
               ('Shared at ' + (
                   DateFormat(_report[i]['shared_at'].toString().split(' ')[0] ==

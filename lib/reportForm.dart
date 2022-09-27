@@ -73,6 +73,7 @@ class _ReportFormState extends State<ReportForm> {
   List<bool?> _isValidMilk = [];
   int _initLengthMilks = 0;
   bool _isUpdated = false;
+  bool _isConfirmKirimLaporan = false;
 
   // required per category
   List<bool> _reqCategoryFilled = [false, false, false, false, false, false, false, false, false, false, false];
@@ -184,6 +185,7 @@ class _ReportFormState extends State<ReportForm> {
     if(widget.isToday) {
       setState(() {
         _milks[index][label] = newData;
+        _isConfirmKirimLaporan = true;
       });
     }
   }
@@ -220,16 +222,16 @@ class _ReportFormState extends State<ReportForm> {
         _data['report'][label] = newData;
 
         _data['progress'] = widget.progressReport(_data['report']);
-        _data['status'] = _data['report']['attendance'] == '0' ? 'Absent' : (
-            _data['progress']<1.0?'In-progress': (
+        _data['status'] = (_data['report']['attendance'] == '0' && _data['report']['shared_at'] == null) ? 'Absent' : (
+            (_data['progress']<1.0 && _data['report']['attendance']=='1')?'In-progress': (
               _data['report']['shared_at'] != null ? (
                   'Shared at '+(DateFormat(_data['report']['shared_at'].toString().split(' ')[0]==_data['report']['date'].toString()?'HH:mm':'d MMM yyyy HH:mm').format(DateTime.parse(_data['report']['shared_at'].toString().split('.')[0])))
               ):'Ready to share'
             )
         );
-        // _data['report']['is_ready_to_share'] = _data['progress']==1.0?'1':'0';
+        _data['report']['is_ready_to_share'] = _data['progress']==1.0?'1':'0';
       });
-
+      _isConfirmKirimLaporan = true;
       _setRequiredCategory(label);
     }
   }
@@ -287,24 +289,24 @@ class _ReportFormState extends State<ReportForm> {
         if (widget.data['report'] == null || !mapEquals(report, widget.data['report'])) {
           // if changes exist
           _isUpdated = true;
+          // set utc +7
+          if (report['shared_at'] != null && report['shared_at'] != '') {
+            report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
+            report['shared_at'] = report['shared_at'] + ' +7';
+          }
+          String shared_at = (report['attendance'].toString()==widget.data['report']['attendance'].toString()) ?
+            (report['shared_at'] ?? widget.data['report']['shared_at'] ?? '') : '';
           if (report['attendance'].toString() == '0') {
-            if(widget.data['report']['attendance'].toString() == '1') {
-              await Api.setReportAbsent(_data['id'].toString());
-            }
-            // else{
-            //   _isUpdated = false;
-            // }
+            await Api.setReportAbsent(_data['id'].toString(), shared_at: shared_at);
           } else {
-            // set utc +7
-            if (report['shared_at'] != null && report['shared_at'] != '') {
-              report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
-              report['shared_at'] = report['shared_at'] + ' +7';
+            if(report['attendance'].toString()=='1' && widget.data['report']['attendance'].toString()=='0') {
+              report['is_ready_to_share'] = _data['progress']==1.0?'1':'0';
             }
             await Api.editReport(_data['id'].toString(), report);
-            // unset utc +7
-            if (report['shared_at'] != null && report['shared_at'] != '') {
-              report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
-            }
+          }
+          // unset utc +7
+          if (report['shared_at'] != null && report['shared_at'] != '') {
+            report['shared_at'] = report['shared_at'].replaceAll(' +7', '');
           }
         }
       } else if (report['attendance'] != null) {
@@ -378,7 +380,7 @@ class _ReportFormState extends State<ReportForm> {
 
   void onBack(context) async {
     await _formSubmit(isBack: false);
-    if(widget.isToday && _isUpdated && (_data['report']['attendance']=='0' || _data['progress']==1.0)) {
+    if(widget.isToday && _isUpdated && (_data['report']['attendance']=='0' || _data['progress']==1.0) && _isConfirmKirimLaporan) {
         _showSendReportDialog(context, 'back');
     } else if (_isUpdated) {
       NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
@@ -598,6 +600,9 @@ class _ReportFormState extends State<ReportForm> {
                             child: GestureDetector(
                                 onTap: () async {
                                   if(trigger == 'send' || trigger == 'share') {
+                                    if(trigger == 'send') {
+                                      _setData('shared_at', DateTime.now().toString().split('.')[0]);
+                                    }
                                     await _formSubmit(isBack: false);
                                   }
 
@@ -617,6 +622,9 @@ class _ReportFormState extends State<ReportForm> {
                                       NavigationService.instance.goBack();
                                     }
                                   }
+                                  setState(() {
+                                    _isConfirmKirimLaporan = false;
+                                  });
                                 },
                                 child: const Text('KIRIM', style: TextStyle(color: Color(0xFF197CD0), letterSpacing: 1, fontWeight: FontWeight.bold))
                             )

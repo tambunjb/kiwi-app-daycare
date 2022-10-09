@@ -4,143 +4,163 @@ import 'accordion.dart';
 
 
 class Nap extends StatefulWidget {
-  Function getData;
-  Function setData;
-  Function getIsValid;
-  Function setIsValid;
+  Function getNapData;
+  Function setNapData;
+  Function getIsValidNap;
+  Function setIsValidNap;
+  Function addNapTime;
+  int initLength;
   bool reqCategoryFilled;
 
-  Nap({Key? key, required this.getData, required this.setData, required this.getIsValid, required this.setIsValid, required this.reqCategoryFilled}) : super(key: key);
+  Nap({Key? key, required this.initLength, required this.getNapData, required this.setNapData, required this.getIsValidNap, required this.setIsValidNap, required this.addNapTime, required this.reqCategoryFilled}) : super(key: key);
 
   @override
   _NapState createState() => _NapState();
 }
 
 class _NapState extends State<Nap> {
-  final List<String> _nap = [];
-  final List<String> _napKey = [];
   final List<TextEditingController> _hourStartCtrl = [];
   final List<TextEditingController> _minuteStartCtrl = [];
   final List<TextEditingController> _hourEndCtrl = [];
   final List<TextEditingController> _minuteEndCtrl = [];
-  final List<TextEditingController> _notesCtrl = [];
-  final List<bool> _notes = [];
+  final List<TextEditingController> _noteCtrl = [];
+  final List<bool?> _notes = [];
 
   @override
   void initState() {
     super.initState();
 
-    // naptime1
-    _napKey.add('naptime1');
-    _nap.add('1st nap time');
+    for(int i=0;i<widget.initLength;i++) {
+      String? start = widget.getNapData(i, 'start');
+      _hourStartCtrl.add(TextEditingController(text: start!=null?start.split(':')[0]:''));
+      _minuteStartCtrl.add(TextEditingController(text: start!=null?start.split(':')[1]:''));
+      String? end = widget.getNapData(i, 'end');
+      _hourEndCtrl.add(TextEditingController(text: end!=null?end.split(':')[0]:''));
+      _minuteEndCtrl.add(TextEditingController(text: end!=null?end.split(':')[1]:''));
+      String? notes = widget.getNapData(i, 'notes');
+      _noteCtrl.add(TextEditingController(text: (notes!=null && notes!='')?notes:''));
+      _notes.add((notes!=null && notes!='')?true:false);
 
-    // naptime2
-    _napKey.add('naptime2');
-    _nap.add('2nd nap time');
-
-    // naptime3
-    _napKey.add('naptime3');
-    _nap.add('3rd nap time');
-
-    // start, end, notes
-    for(String n in _napKey){
-      String text = (widget.getData('report,'+n+'_start')!=null && widget.getData('report,'+n+'_start')!='')?widget.getData('report,'+n+'_start'):'';
-      _hourStartCtrl.add(TextEditingController(text: text!=''?text.split(':')[0]:''));
-      _minuteStartCtrl.add(TextEditingController(text: text!=''?text.split(':')[1]:''));
-
-      text = (widget.getData('report,'+n+'_end')!=null && widget.getData('report,'+n+'_end')!='')?widget.getData('report,'+n+'_end'):'';
-      _hourEndCtrl.add(TextEditingController(text: text!=''?text.split(':')[0]:''));
-      _minuteEndCtrl.add(TextEditingController(text: text!=''?text.split(':')[1]:''));
-
-      text = (widget.getData('report,'+n+'_notes')!=null && widget.getData('report,'+n+'_notes')!='')?widget.getData('report,'+n+'_notes'):'';
-      _notesCtrl.add(TextEditingController(text: text));
-
-      _notes.add(text!=''?true:false);
+      _hourStartCtrl[i].addListener(() => _setStart(i));
+      _minuteStartCtrl[i].addListener(() => _setStart(i));
+      _hourEndCtrl[i].addListener(() => _setEnd(i));
+      _minuteEndCtrl[i].addListener(() => _setEnd(i));
+      _noteCtrl[i].addListener(() => _setNotes(i));
     }
 
-    for(int i=0;i<_napKey.length;i++) {
-      void Function() setData = () {
-        if(_hourStartCtrl[i].text.trim()!='' && int.parse(_hourStartCtrl[i].text.trim()) > 23) {
-          setState(() {
-            _hourStartCtrl[i] = TextEditingController(text: '23');
-          });
-        }
-        if(_minuteStartCtrl[i].text.trim()!='' && int.parse(_minuteStartCtrl[i].text.trim()) > 59) {
-          setState(() {
-            _minuteStartCtrl[i] = TextEditingController(text: '59');
-          });
-        }
-        if(_hourEndCtrl[i].text.trim()!='' && int.parse(_hourEndCtrl[i].text.trim()) > 23) {
-          setState(() {
-            _hourEndCtrl[i] = TextEditingController(text: '23');
-          });
-        }
-        if(_minuteEndCtrl[i].text.trim()!='' && int.parse(_minuteEndCtrl[i].text.trim()) > 59) {
-          setState(() {
-            _minuteEndCtrl[i] = TextEditingController(text: '59');
-          });
-        }
+    if(widget.initLength==0) {
+      _hourStartCtrl.add(TextEditingController());
+      _minuteStartCtrl.add(TextEditingController());
+      _hourEndCtrl.add(TextEditingController());
+      _minuteEndCtrl.add(TextEditingController());
+      _noteCtrl.add(TextEditingController());
 
-        String hourStart = _hourStartCtrl[i].text.trim();
-        String minuteStart = _minuteStartCtrl[i].text.trim();
-        String hourEnd = _hourEndCtrl[i].text.trim();
-        String minuteEnd = _minuteEndCtrl[i].text.trim();
-
-        widget.setData(_napKey[i]+'_start', hourStart+':'+minuteStart);
-        widget.setData(_napKey[i]+'_end', hourEnd+':'+minuteEnd);
-        if((hourStart!='' && minuteStart!='' && hourEnd!='' && minuteEnd!='') &&
-            //(int.parse(hourStart) < 24 && int.parse(minuteStart) < 60 && int.parse(hourEnd) < 24 && int.parse(minuteEnd) < 60) &&
-            ((int.parse(hourStart) < int.parse(hourEnd)) ||
-                (int.parse(hourStart) == int.parse(hourEnd) && int.parse(minuteStart) < int.parse(minuteEnd)))
-        ) {
-          widget.setIsValid('isvalid_'+_napKey[i], true);
-        }else{
-          widget.setIsValid('isvalid_'+_napKey[i], false);
-        }
-      };
-      _hourStartCtrl[i].addListener(setData);
-      _minuteStartCtrl[i].addListener(setData);
-      _hourEndCtrl[i].addListener(setData);
-      _minuteEndCtrl[i].addListener(setData);
-
-      _notesCtrl[i].addListener(() {
-        widget.setData(_napKey[i]+'_notes', _notesCtrl[i].text.trim());
-      });
+      _hourStartCtrl[0].addListener(() => _setStart(0));
+      _minuteStartCtrl[0].addListener(() => _setStart(0));
+      _hourEndCtrl[0].addListener(() => _setEnd(0));
+      _minuteEndCtrl[0].addListener(() => _setEnd(0));
+      _noteCtrl[0].addListener(() => _setNotes(0));
+      _notes.add(null);
     }
   }
 
-  void _deleteNotes(int i) {
-    widget.setData(_napKey[i]+'_notes', '');
+  void _setStart(int i) {
+    if(_hourStartCtrl[i].text.trim()!='' && int.parse(_hourStartCtrl[i].text.trim()) > 23) {
+      setState(() {
+        _hourStartCtrl[i] = TextEditingController(text: '23');
+      });
+    }
+    if(_minuteStartCtrl[i].text.trim()!='' && int.parse(_minuteStartCtrl[i].text.trim()) > 59) {
+      setState(() {
+        _minuteStartCtrl[i] = TextEditingController(text: '59');
+      });
+    }
+    widget.setNapData(i, 'start', _hourStartCtrl[i].text.trim()+':'+_minuteStartCtrl[i].text.trim());
+    _setIsValidNap(i);
+  }
+
+  void _setEnd(int i) {
+    if(_hourEndCtrl[i].text.trim()!='' && int.parse(_hourEndCtrl[i].text.trim()) > 23) {
+      setState(() {
+        _hourEndCtrl[i] = TextEditingController(text: '23');
+      });
+    }
+    if(_minuteEndCtrl[i].text.trim()!='' && int.parse(_minuteEndCtrl[i].text.trim()) > 59) {
+      setState(() {
+        _minuteEndCtrl[i] = TextEditingController(text: '59');
+      });
+    }
+    widget.setNapData(i, 'end', _hourEndCtrl[i].text.trim()+':'+_minuteEndCtrl[i].text.trim());
+    _setIsValidNap(i);
+  }
+
+  void _setNotes(int i) {
+    widget.setNapData(i, 'notes', _noteCtrl[i].text.trim());
+  }
+
+  void _addNapTime() {
     setState(() {
-      _notesCtrl[i] = TextEditingController();
-      _notes[i] = false;
+      _hourStartCtrl.add(TextEditingController());
+      _minuteStartCtrl.add(TextEditingController());
+      _hourEndCtrl.add(TextEditingController());
+      _minuteEndCtrl.add(TextEditingController());
+      _noteCtrl.add(TextEditingController());
+      _notes.add(null);
+
+      widget.addNapTime();
+      int i = _hourStartCtrl.length-1;
+
+      _hourStartCtrl[i].addListener(() => _setStart(i));
+      _minuteStartCtrl[i].addListener(() => _setStart(i));
+      _hourEndCtrl[i].addListener(() => _setEnd(i));
+      _minuteEndCtrl[i].addListener(() => _setEnd(i));
+      _noteCtrl[i].addListener(() => _setNotes(i));
     });
+  }
+
+  void _setIsValidNap(int index) {
+    String hourStart = _hourStartCtrl[index].text.trim();
+    String minuteStart = _minuteStartCtrl[index].text.trim();
+    String hourEnd = _hourEndCtrl[index].text.trim();
+    String minuteEnd = _minuteEndCtrl[index].text.trim();
+
+    if(hourStart!='' && minuteStart!='' && hourEnd!='' && minuteEnd!='') {
+      widget.setIsValidNap(index, true);
+    }else{
+      widget.setIsValidNap(index, false);
+    }
   }
 
   @override
   void dispose() {
-    for(int i=0;i<_napKey.length;i++) {
+    for(int i=0;i<_hourStartCtrl.length;i++) {
       _hourStartCtrl[i].dispose();
       _minuteStartCtrl[i].dispose();
       _hourEndCtrl[i].dispose();
       _minuteEndCtrl[i].dispose();
-      _notesCtrl[i].dispose();
+      _noteCtrl[i].dispose();
     }
     super.dispose();
+  }
+
+  void reset(int index){
+    setState(() {
+      _hourStartCtrl[index] = TextEditingController();
+      _minuteStartCtrl[index] = TextEditingController();
+      _hourEndCtrl[index] = TextEditingController();
+      _minuteEndCtrl[index] = TextEditingController();
+      // _noteCtrl[index] = TextEditingController();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[];
-    for (var i = 0; i < _nap.length; i++) {
+    for(int i = 0; i < _hourStartCtrl.length; i++) {
       items.add(
           Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(_nap[i], style: const TextStyle(fontSize: 15))
-                ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -236,10 +256,18 @@ class _NapState extends State<Nap> {
                             ),
                           )
                       ),
+                      Expanded(
+                          child: GestureDetector(
+                                onTap: () {
+                                  reset(i);
+                                },
+                                child: const Icon(Icons.close_rounded)
+                            )
+                      )
                     ]
                 ),
                 Visibility(
-                  visible: widget.getIsValid('isvalid_'+_napKey[i])==false,
+                  visible: widget.getIsValidNap(i) == false,
                   child: Container(
                       padding: const EdgeInsets.only(top: 10),
                       child: const Text('Please enter a valid nap time',
@@ -247,12 +275,12 @@ class _NapState extends State<Nap> {
                   ),
                 ),
                 Visibility(
-                  visible: !_notes[i],
+                  visible: _notes[i] != true,
                   child: Container(
                       padding: const EdgeInsets.only(top: 10, bottom: 10),
                       child: GestureDetector(
                           onTap: () {
-                            if(widget.getIsValid('isvalid_'+_napKey[i])==true) {
+                            if(widget.getIsValidNap(i) == true) {
                               setState(() {
                                 _notes[i] = true;
                               });
@@ -264,14 +292,14 @@ class _NapState extends State<Nap> {
                   ),
                 ),
                 Visibility(
-                    visible: _notes[i],
+                    visible: _notes[i] == true,
                     child: Container(
                         padding: const EdgeInsets.only(top: 10, bottom: 10),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextField(
-                                controller: _notesCtrl[i],
+                                controller: _noteCtrl[i],
                                 decoration: const InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
@@ -289,7 +317,11 @@ class _NapState extends State<Nap> {
                                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                                   child: GestureDetector(
                                       onTap: () {
-                                        _deleteNotes(i);
+                                        setState(() {
+                                          _noteCtrl[i] = TextEditingController();
+                                          _notes[i] = false;
+                                        });
+                                        widget.setNapData(i, 'notes', '');
                                       },
                                       child: const Text('Delete note',
                                           style: TextStyle(
@@ -300,6 +332,7 @@ class _NapState extends State<Nap> {
                         )
                     )
                 ),
+                const SizedBox(height: 10)
               ]
           )
       );
@@ -312,7 +345,22 @@ class _NapState extends State<Nap> {
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: items
-              )
+              ),
+              Container(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.add_circle, size: 27),
+                        GestureDetector(
+                            onTap: () {
+                              _addNapTime();
+                            },
+                            child: const Text('  Add nap times', style: TextStyle(fontSize: 18, color: Colors.black))
+                        ),
+                      ]
+                  )
+              ),
             ]
         ),
         reqCategoryFilled: widget.reqCategoryFilled

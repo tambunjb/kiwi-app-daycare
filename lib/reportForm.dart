@@ -25,11 +25,12 @@ import 'reportPdf.dart';
 class ReportForm extends StatefulWidget{
   final dynamic data;
   dynamic milks;
+  dynamic naps;
   final Function progressReport;
   final bool isToday;
   final List<String> requiredList;
 
-  ReportForm({Key? key, required this.data, required this.progressReport, required this.milks, required this.isToday, required this.requiredList}) : super(key: key) {
+  ReportForm({Key? key, required this.data, required this.progressReport, required this.milks, required this.naps, required this.isToday, required this.requiredList}) : super(key: key) {
     if(milks != null && milks.runtimeType == String) {
       milks = milks.replaceAll('null', '||||');
       milks = milks.replaceAll('{', '{"');
@@ -51,6 +52,32 @@ class ReportForm extends StatefulWidget{
         }
       }
     }
+
+    if(naps != null && naps.runtimeType == String) {
+      naps = naps.replaceAll('null', '||||');
+      naps = naps.replaceAll('{', '{"');
+      naps = naps.replaceAll(': ', '": "');
+      naps = naps.replaceAll(', ', '", "');
+      naps = naps.replaceAll('}', '"}');
+      naps = naps.replaceAll('}",', '},');
+      naps = naps.replaceAll(', "{', ', {');
+      naps = naps.replaceAll('"||||"', 'null');
+      naps = jsonDecode(naps);
+
+      naps.sort((a, b) => a['start'].toString().compareTo(b['start'].toString()));
+
+      for(int i=0;i<naps.length;i++) {
+        naps[i].removeWhere((key, value) => value == null);
+        // time remove second
+        if(naps[i]['start']!=null) {
+          naps[i]['start'] = naps[i]['start'].toString().split(':')[0]+':'+naps[i]['start'].toString().split(':')[1];
+        }
+        if(naps[i]['end']!=null) {
+          naps[i]['end'] = naps[i]['end'].toString().split(':')[0]+':'+naps[i]['end'].toString().split(':')[1];
+        }
+      }
+    }
+
   }
 
   @override
@@ -64,14 +91,17 @@ class _ReportFormState extends State<ReportForm> {
     'isvalid_arrival_time': ['arrival_time'],
     'isvalid_temperature': ['temperature'],
     'isvalid_weight': ['weight'],
-    'isvalid_naptime1': ['naptime1_start', 'naptime1_end', 'naptime1_notes'],
-    'isvalid_naptime2': ['naptime2_start', 'naptime2_end', 'naptime2_notes'],
-    'isvalid_naptime3': ['naptime3_start', 'naptime3_end', 'naptime3_notes'],
+    // 'isvalid_naptime1': ['naptime1_start', 'naptime1_end', 'naptime1_notes'],
+    // 'isvalid_naptime2': ['naptime2_start', 'naptime2_end', 'naptime2_notes'],
+    // 'isvalid_naptime3': ['naptime3_start', 'naptime3_end', 'naptime3_notes'],
     'isvalid_num_of_potty': ['num_of_potty', 'potty_notes']
   };
   List<Map<String, dynamic>> _milks = [];
+  List<Map<String, dynamic>> _naps = [];
   List<bool?> _isValidMilk = [];
+  List<bool?> _isValidNap = [];
   int _initLengthMilks = 0;
+  int _initLengthNaps = 0;
   bool _isUpdated = false;
   bool _isConfirmKirimLaporan = false;
 
@@ -105,18 +135,18 @@ class _ReportFormState extends State<ReportForm> {
     }
 
     // is valid nap time
-    if(_data['report']['naptime1_start']!=null && _data['report']['naptime1_start']!='' &&
-        _data['report']['naptime1_end']!=null && _data['report']['naptime1_end']!='') {
-      _isValid['isvalid_naptime1'] = true;
-    }
-    if(_data['report']['naptime2_start']!=null && _data['report']['naptime2_start']!='' &&
-        _data['report']['naptime2_end']!=null && _data['report']['naptime2_end']!='') {
-      _isValid['isvalid_naptime2'] = true;
-    }
-    if(_data['report']['naptime3_start']!=null && _data['report']['naptime3_start']!='' &&
-        _data['report']['naptime3_end']!=null && _data['report']['naptime3_end']!='') {
-      _isValid['isvalid_naptime3'] = true;
-    }
+    // if(_data['report']['naptime1_start']!=null && _data['report']['naptime1_start']!='' &&
+    //     _data['report']['naptime1_end']!=null && _data['report']['naptime1_end']!='') {
+    //   _isValid['isvalid_naptime1'] = true;
+    // }
+    // if(_data['report']['naptime2_start']!=null && _data['report']['naptime2_start']!='' &&
+    //     _data['report']['naptime2_end']!=null && _data['report']['naptime2_end']!='') {
+    //   _isValid['isvalid_naptime2'] = true;
+    // }
+    // if(_data['report']['naptime3_start']!=null && _data['report']['naptime3_start']!='' &&
+    //     _data['report']['naptime3_end']!=null && _data['report']['naptime3_end']!='') {
+    //   _isValid['isvalid_naptime3'] = true;
+    // }
 
     // prefill static attribute
     if(_data['report']['nanny_id']==null) {
@@ -143,6 +173,17 @@ class _ReportFormState extends State<ReportForm> {
       _isValidMilk.add(null);
     }
 
+    if(widget.naps!=null && widget.naps.isNotEmpty) {
+      _initLengthNaps = widget.naps.length;
+      for(int i=0;i<_initLengthNaps;i++) {
+        _naps.add(json.decode(json.encode(widget.naps[i]))); // widget.naps;
+        _isValidNap.add(true);
+      }
+    }else{
+      _naps.add({});
+      _isValidNap.add(null);
+    }
+
     // required fields filled
     for(int i=0;i<_reqCategoryFields.length;i++) {
       _reqCategoryFieldsMapped.add([]);
@@ -166,6 +207,40 @@ class _ReportFormState extends State<ReportForm> {
       }
     }
 
+  }
+
+  void _addNapTime() {
+    if(widget.isToday) {
+      setState(() {
+        _naps.add({});
+        _isValidNap.add(null);
+      });
+    }
+  }
+
+  dynamic _getNapData(int index, String label) {
+    return _naps[index][label];
+  }
+
+  void _setNapData(int index, String label, dynamic newData) {
+    if(widget.isToday) {
+      setState(() {
+        _naps[index][label] = newData;
+        _isConfirmKirimLaporan = true;
+      });
+    }
+  }
+
+  bool? _getIsValidNap(int index) {
+    return _isValidNap[index];
+  }
+
+  void _setIsValidNap(int index, bool valid) {
+    if(widget.isToday) {
+      setState(() {
+        _isValidNap[index] = valid;
+      });
+    }
   }
 
   void _addMilkSession() {
@@ -333,6 +408,7 @@ class _ReportFormState extends State<ReportForm> {
       if (report['attendance'].toString() == '1' &&
           (_data['id'] != null && _data['id'] != false)) {
         await _formMilkSubmit();
+        await _formNapSubmit();
       }
     } else if(sharePastDate) {
       final pd_shared_at = DateTime.now().toString().split('.')[0];
@@ -351,6 +427,32 @@ class _ReportFormState extends State<ReportForm> {
         NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
       } else {
         NavigationService.instance.goBack();
+      }
+    }
+  }
+
+  Future<void> _formNapSubmit() async {
+    List napsStart = [];
+    List napsEnd = [];
+    for(int i=0;i<_naps.length;i++) {
+      if(_isValidNap[i]==true) {
+        if(_naps[i]['id']!=null) {
+          napsStart.add(_naps[i]['start']);
+          napsEnd.add(_naps[i]['end']);
+          if(widget.naps[i]==null || !mapEquals(_naps[i], widget.naps[i])) {
+            _isUpdated = true;
+            await Api.editNapTime(_naps[i].remove('id').toString(), _naps[i]);
+          }
+        } else {
+          _naps[i]['report_id'] = _data['id'].toString();
+          _isUpdated = true;
+
+          if(napsStart.where((item) => item == _naps[i]['start']).isEmpty && napsEnd.where((item) => item == _naps[i]['end']).isEmpty) {
+            _naps[i]['id'] = await Api.addNapTime(Map<String, dynamic>.from(_naps[i]));
+            napsStart.add(_naps[i]['start']);
+            napsEnd.add(_naps[i]['end']);
+          }
+        }
       }
     }
   }
@@ -425,7 +527,7 @@ class _ReportFormState extends State<ReportForm> {
                     //   await _showSendReportDialog(context, 'share');
                     // } else {
                       Fluttertoast.showToast(msg: 'Processing to share, please wait...');
-                      reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                      reportPdf(context, _data, _milks, _naps, _setData, _formSubmit, widget.isToday);
                     //}
                   } else {
                     Fluttertoast.showToast(msg: 'Complete the form first to share');
@@ -506,7 +608,7 @@ class _ReportFormState extends State<ReportForm> {
               MoodAndHealth(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
               Meals(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
               Milk(initLength: _initLengthMilks, getMilkData: _getMilkData, setMilkData: _setMilkData, getIsValidMilk: _getIsValidMilk, setIsValidMilk: _setIsValidMilk, addMilkSession: _addMilkSession, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
-              Nap(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
+              Nap(initLength: _initLengthNaps, getNapData: _getNapData, setNapData: _setNapData, getIsValidNap: _getIsValidNap, setIsValidNap: _setIsValidNap, addNapTime: _addNapTime, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
               Potty(getData: _getData, setData: _setData, getIsValid: _getIsValid, setIsValid: _setIsValid, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
               Activities(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
               Bath(getData: _getData, setData: _setData, reqCategoryFilled: _reqCategoryFilled[_reqCategoryCounter++]),
@@ -583,7 +685,7 @@ class _ReportFormState extends State<ReportForm> {
 
                               if(trigger == 'share') {
                                 Fluttertoast.showToast(msg: 'Processing to share, please wait...');
-                                reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                                reportPdf(context, _data, _milks, _naps, _setData, _formSubmit, widget.isToday);
                               } else if(trigger == 'back') {
                                 if (_isUpdated) {
                                   NavigationService.instance.navigateUntil("home", args: _data['report']['date']);
@@ -614,7 +716,7 @@ class _ReportFormState extends State<ReportForm> {
 
                                   if(trigger == 'share') {
                                     Fluttertoast.showToast(msg: 'Processing to share, please wait...');
-                                    reportPdf(context, _data, _milks, _setData, _formSubmit, widget.isToday);
+                                    reportPdf(context, _data, _milks, _naps, _setData, _formSubmit, widget.isToday);
                                   } else if(trigger == 'back') {
                                     if (_isUpdated) {
                                       NavigationService.instance.navigateUntil("home", args: _data['report']['date']);

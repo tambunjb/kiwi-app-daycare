@@ -70,7 +70,7 @@ class _MealsState extends State<Meals> {
   }
 
   Future _setMealDefault() async {
-    List mealsConfig = await Api.getMealConfigByLocation(widget.getData('report,location_id'), widget.getData('report,date').split('-')[2]);
+    List mealsConfig = await Api.getMealConfigByLocationCategory(widget.getData('report,location_id'), widget.getData('meal_category').toString(), widget.getData('report,date').split('-')[2]);
     for(int i=0;i<_mealKey.length;i++) {
       int mealIndex = mealsConfig.indexWhere((item) => item['type'] == _mealKey[i]);
       if(mealIndex!=-1) {

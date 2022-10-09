@@ -7,7 +7,7 @@ import 'config.dart';
 
 class Api {
 
-  static const String _baseUrl = 'https://api.kindercastle.co.id/'; // 'http://192.168.1.12/'
+  static const String _baseUrl = 'https://api.kindercastle.co.id/'; // 'http://192.168.1.3/'
   static const String _contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
 
   static Future<Map<String, String>> _buildHeaders({bool token = true}) async {
@@ -91,9 +91,9 @@ class Api {
     return _processReturn(response);
   }
 
-  static Future<dynamic> getMealConfigByLocation(String locationId, String dayOfMonth) async {
+  static Future<dynamic> getMealConfigByLocationCategory(String locationId, String category, String dayOfMonth) async {
     final response = await http.get(
-        Uri.parse(_baseUrl + 'meal-config/get-by-location/'+locationId+"/"+dayOfMonth),
+        Uri.parse(_baseUrl + 'meal-config/get-by-location-category/'+locationId+"/"+category+"/"+dayOfMonth),
         headers: await _buildHeaders()
     );
 
@@ -239,6 +239,23 @@ class Api {
     return false;
   }
 
+  static Future<dynamic> addNapTime(Map<String, dynamic> napTime) async {
+    final response = await http.post(
+        Uri.parse(_baseUrl + 'nap-time/add'),
+        headers: await _buildHeaders(),
+        body: await _processBody(napTime)
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return body['id'];
+    } else {
+      log(response.body);
+    }
+
+    return false;
+  }
+
   static Future<bool> editMilkSession(String id, Map<String, dynamic> milkSession) async {
     final response = await http.post(
       Uri.parse(_baseUrl + 'milk-session/edit/'+id),
@@ -256,9 +273,42 @@ class Api {
     return false;
   }
 
+  static Future<bool> editNapTime(String id, Map<String, dynamic> napTime) async {
+    final response = await http.post(
+        Uri.parse(_baseUrl + 'nap-time/edit/'+id),
+        headers: await _buildHeaders(),
+        body: await _processBody(napTime)
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return true;
+    } else {
+      log(response.body);
+    }
+
+    return false;
+  }
+
   static Future<bool> delMilkSession(String id) async {
     final response = await http.post(
         Uri.parse(_baseUrl + 'milk-session/del/'+id),
+        headers: await _buildHeaders()
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return true;
+    } else {
+      log(response.body);
+    }
+
+    return false;
+  }
+
+  static Future<bool> delNapTime(String id) async {
+    final response = await http.post(
+        Uri.parse(_baseUrl + 'nap-time/del/'+id),
         headers: await _buildHeaders()
     );
 

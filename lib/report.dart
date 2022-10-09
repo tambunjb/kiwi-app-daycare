@@ -177,6 +177,7 @@ class _ReportState extends State<Report>{
           'nanny_id': _mapping[i]['nanny_id'],
           'nanny_name': _mapping[i]['nanny_name'],
           'location_id': _mapping[i]['location_id'],
+          'meal_category': _mapping[i]['child_meal_category'],
           'child_id': _mapping[i]['child_id'],
           'child_name': _mapping[i]['child_name'],
           'child_nickname': _mapping[i]['child_nickname'],
@@ -217,6 +218,7 @@ class _ReportState extends State<Report>{
           'nanny_id': _report[i]['nanny_id'],
           'nanny_name': _report[i]['nanny_name'],
           'location_id': _report[i]['location_id'],
+          'meal_category': _report[i]['child_meal_category'],
           'child_id': _report[i]['child_id'],
           'child_name': _report[i]['child_name'],
           'child_nickname': _report[i]['child_nickname'],
@@ -435,7 +437,7 @@ class _ReportState extends State<Report>{
                             //if(_isToday) {
                               NavigationService.instance.navigateToRoute(MaterialPageRoute(
                                   builder: (BuildContext context){
-                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report']['milk_sessions'], isToday: _isToday, requiredList: _requiredList);
+                                    return ReportForm(data: data[index], progressReport: _progressReport, milks: data[index]['report']['milk_sessions'], naps: data[index]['report']['nap_times'], isToday: _isToday, requiredList: _requiredList);
                                   }
                               ));
                             //}

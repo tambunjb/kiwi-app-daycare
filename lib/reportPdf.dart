@@ -50,7 +50,7 @@ Checkbox getCheckboxThings(String name, bool value) {
   );
 }
 
-reportPdf(context, data, milks, setData, formSubmit, isToday) async {
+reportPdf(context, data, milks, naps, setData, formSubmit, isToday) async {
   try {
     final Document pdf = Document();
 
@@ -734,7 +734,8 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                           Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Expanded(
+                                for (int i = 0; i < naps.length; i++)
+                                  Expanded(
                                     child: Row(
                                         children: [
                                           Container(
@@ -743,14 +744,14 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                           ),
                                           SizedBox(width: 5),
                                           Text(
-                                              (data['report']['naptime1_start'] !=
+                                              (naps[i]['start'] !=
                                                   null &&
-                                                  data['report']['naptime1_start'] !=
+                                                  naps[i]['start'] !=
                                                       '')
-                                                  ? (data['report']['naptime1_start']
+                                                  ? (naps[i]['start']
                                                   .toString()
                                                   .split(':')[0] + ':' +
-                                                  data['report']['naptime1_start']
+                                                  naps[i]['start']
                                                       .toString()
                                                       .split(':')[1])
                                                   : '....:....'),
@@ -758,90 +759,14 @@ reportPdf(context, data, milks, setData, formSubmit, isToday) async {
                                           Text('UNTIL'),
                                           SizedBox(width: 5),
                                           Text(
-                                              (data['report']['naptime1_end'] !=
+                                              (naps[i]['end'] !=
                                                   null &&
-                                                  data['report']['naptime1_end'] !=
+                                                  naps[i]['end'] !=
                                                       '')
-                                                  ? (data['report']['naptime1_end']
+                                                  ? (naps[i]['end']
                                                   .toString()
                                                   .split(':')[0] + ':' +
-                                                  data['report']['naptime1_end']
-                                                      .toString()
-                                                      .split(':')[1])
-                                                  : '....:....')
-                                        ]
-                                    )
-                                ),
-                                Expanded(
-                                    child: Row(
-                                        children: [
-                                          Container(
-                                              height: 20,
-                                              child: getImg(iconStar)
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text(
-                                              (data['report']['naptime2_start'] !=
-                                                  null &&
-                                                  data['report']['naptime2_start'] !=
-                                                      '')
-                                                  ? (data['report']['naptime2_start']
-                                                  .toString()
-                                                  .split(':')[0] + ':' +
-                                                  data['report']['naptime2_start']
-                                                      .toString()
-                                                      .split(':')[1])
-                                                  : '....:....'),
-                                          SizedBox(width: 5),
-                                          Text('UNTIL'),
-                                          SizedBox(width: 5),
-                                          Text(
-                                              (data['report']['naptime2_end'] !=
-                                                  null &&
-                                                  data['report']['naptime2_end'] !=
-                                                      '')
-                                                  ? (data['report']['naptime2_end']
-                                                  .toString()
-                                                  .split(':')[0] + ':' +
-                                                  data['report']['naptime2_end']
-                                                      .toString()
-                                                      .split(':')[1])
-                                                  : '....:....')
-                                        ]
-                                    )
-                                ),
-                                Expanded(
-                                    child: Row(
-                                        children: [
-                                          Container(
-                                              height: 20,
-                                              child: getImg(iconStar)
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text(
-                                              (data['report']['naptime3_start'] !=
-                                                  null &&
-                                                  data['report']['naptime3_start'] !=
-                                                      '')
-                                                  ? (data['report']['naptime3_start']
-                                                  .toString()
-                                                  .split(':')[0] + ':' +
-                                                  data['report']['naptime3_start']
-                                                      .toString()
-                                                      .split(':')[1])
-                                                  : '....:....'),
-                                          SizedBox(width: 5),
-                                          Text('UNTIL'),
-                                          SizedBox(width: 5),
-                                          Text(
-                                              (data['report']['naptime3_end'] !=
-                                                  null &&
-                                                  data['report']['naptime3_end'] !=
-                                                      '')
-                                                  ? (data['report']['naptime3_end']
-                                                  .toString()
-                                                  .split(':')[0] + ':' +
-                                                  data['report']['naptime3_end']
+                                                  naps[i]['end']
                                                       .toString()
                                                       .split(':')[1])
                                                   : '....:....')

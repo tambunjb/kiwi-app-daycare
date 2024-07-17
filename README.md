@@ -1,3 +1,9 @@
+# <span id="tjidtitle">Daycare App for Nurse</span>
+
+<div>Technologies: <span id="tjidtechs">Flutter, Firebase</span></div>
+<br />
+
+
 # kiwi_app_daycare
 
 A Flutter project for KIWI-DayCare mobile app

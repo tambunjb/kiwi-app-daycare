@@ -1,6 +1,6 @@
 # <span id="tjidtitle">Daycare App for Nurse</span>
 
-<div>Technologies: <span id="tjidtechs">Flutter, Firebase</span></div>
+<div>Technologies: <span id="tjidtechs">Flutter, Firebase, iOS</span></div>
 <br />
 
 
